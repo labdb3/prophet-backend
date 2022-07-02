@@ -8,4 +8,5 @@ urlpatterns = [
     path("getAllModels", views.getAllModels),
     path("getAllDatasets", views.getAllDatasets),
     path("getResultOfModel", views.getResultOfModel),
+    path("getDataset",views.getDataset)
 ]
