@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from fbprophet import Prophet
-from util import *
+from prophet import Prophet
+from .util import *
 
 
 class MetaModel:
@@ -16,7 +16,7 @@ class MetaModel:
 
 
 # prophet(n_changepoints:突变性,changepoint_prior_scale:趋势性,seasonality_prior_scale:周期性，data_prepare:数据预处理方式)
-class prophet(MetaModel):
+class prophetModel(MetaModel):
     def __init__(self,n_changepoints=1000,changepoint_prior_scale=5000,seasonality_prior_scale=2000,data_prepare="log"):
         super(MetaModel, self).__init__()
         self.n_changepoints = n_changepoints
@@ -61,10 +61,10 @@ class prophet(MetaModel):
 
 
 if __name__=='__main__':
-    x = prophet(1000,5000,2000,"log")
-    data = pd.read_excel("/Users/zongdianliu/python/myprophet/data/datasets/三个样本.xlsx", sheet_name='样本1',header=0,skiprows=0)
+    x = prophetModel(1000,5000,2000,"log")
+    data = pd.read_excel("/home/fcg/lzd/prophet-backend/data/datasets/三个样本.xlsx", sheet_name='样本1',header=0,skiprows=0)
     data.columns=['ds','y']
     print(data)
     x.fit(data['ds'].values.tolist(),data['y'].values.tolist())
-    # predict = x.predict(data['ds'].values[0],len(data['ds']),5)
+    predict = x.predict(data['ds'].values[0],len(data['ds']),5)
     # print(nihe_error(data['y'].values.tolist(),predict.values.tolist()))

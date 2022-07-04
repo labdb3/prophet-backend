@@ -116,6 +116,8 @@ CORS_ALLOW_METHODS = (
     'VIEW',
 )
 
+ALLOWED_HOSTS = ['192.168.0.103','*']
+
 # CORS_ALLOW_HEADERS = (
 #     'accept',
 #     'accept-encoding',
