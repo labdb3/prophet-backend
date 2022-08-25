@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 from prophet import Prophet
+import myGM.util
+import myGM.xlsx_reader as xlsx_reader
+import myGM.data_preprocess as data_preprocess
 from .util import *
 
 
@@ -58,6 +61,20 @@ class prophetModel(MetaModel):
         if self.data_prepare == "normalize":
             forecast['yhat'] = anti_normalize(forecast['yhat'])
         return forecast['yhat']
+
+
+class GMModel(MetaModel):
+    def __init__(self, nums=1, peak_rate=0.4, option=0):
+        super(MetaModel, self).__init__()
+        self.nums = nums
+        self.peak_rate = peak_rate
+        self.option = option
+
+    def fit(self,data):
+        return myGM.util.fit(data)
+
+    def predict(self,data,years):
+        return myGM.util.predict(data,years)
 
 
 if __name__=='__main__':
