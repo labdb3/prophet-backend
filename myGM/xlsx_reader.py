@@ -47,6 +47,7 @@ def first_order_GM(actual):
     for i in range(0, len(sum_res)):
         sum_res[i] = (actual[0] - b/a) *np.exp(-a*i) + b/a
     actual_res = np.zeros(len(actual)+1)
+    actual_res[0] = sum_res[0]
     for i in range(1, len(actual_res)):
         actual_res[i] = sum_res[i] - sum_res[i - 1]
     return actual_res

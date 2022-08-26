@@ -38,9 +38,8 @@ def pred_GM(dataset, years, params=[1, 0.4, 0]):
     data = pd.read_excel(os.path.join(BASE_DIR, dataset), header=0, skiprows=0)
     model = GMModel(params[0], params[1], params[2])
     data = data_preprocess.preprocess(data)
-    ##model.fit(data)
-    predict = model.pred(data, years)
-    return predict.to_numpy().tolist()
+    origin,predict = model.pred(data, years)
+    return origin.to_numpy().tolist(), predict.to_numpy().tolist()
 
 
 if __name__=='__main__':
