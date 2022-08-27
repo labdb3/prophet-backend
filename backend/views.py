@@ -45,13 +45,17 @@ def getAllModels(request):
     resp = [{"value":item,"label":item} for item in models]
     return JsonResponse(resp,safe=False)
 
-
 @csrf_exempt
 def getAllDatasets(request):
-    datasets = [file.split(".")[0] for file in os.listdir(BASE_DIR)]
-    resp = [{"value": item, "label": item} for item in datasets]
-    return JsonResponse(resp,safe=False)
+    all_datasets = []
+    files = os.listdir(BASE_DIR)
+    for file in files:
+        sheets = pd.read_excel(os.path.join(BASE_DIR,file), sheet_name=None)
+        for sheet in sheets:
+            all_datasets.append(file+"_"+sheet)
 
+    resp = [{"value": item, "label": item} for item in all_datasets]
+    return JsonResponse(resp,safe=False)
 
 @csrf_exempt
 def getResultOfModel(request):
