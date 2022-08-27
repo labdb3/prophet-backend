@@ -1,9 +1,6 @@
 import pandas as pd
-import numpy as np
 from prophet import Prophet
-import myGM.util
-import myGM.xlsx_reader as xlsx_reader
-import myGM.data_preprocess as data_preprocess
+import model.myGM.util
 from .util import *
 
 
@@ -64,6 +61,9 @@ class prophetModel(MetaModel):
 
 
 class GMModel(MetaModel):
+    ## nums: 峰点左右点的数目（取两边的最大值，默认为1）
+    ## peak_rate: 峰点相比左右临近点最小的增长率（取最大值，默认为0.4）
+    ## option: 保留选项，将来用作用户自行划定轮回区间使用
     def __init__(self, nums=1, peak_rate=0.4, option=0):
         super(MetaModel, self).__init__()
         self.nums = nums
@@ -71,10 +71,10 @@ class GMModel(MetaModel):
         self.option = option
 
     def fit(self,data):
-        return myGM.util.fit(data)
+        return model.myGM.util.fit(data,self.nums, self.peak_rate)
 
     def predict(self,data,years):
-        return myGM.util.predict(data,years)
+        return model.myGM.util.predict(data, years,self.nums, self.peak_rate)
 
 
 if __name__=='__main__':

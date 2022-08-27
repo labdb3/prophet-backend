@@ -1,11 +1,12 @@
-import myGM.xlsx_reader as xlsx_reader
-import myGM.data_preprocess as data_preprocess
+import model.myGM.xlsx_reader as xlsx_reader
+import model.myGM.data_preprocess as data_preprocess
 import numpy as np
 import copy
+import pandas as pd
 
 
-def predict(data,years):
-    data, cur_fit_input, origin_input, model_input, stat = get_model_input(data)
+def predict(data,years,nums, peak_rate):
+    data, cur_fit_input, origin_input, model_input, stat = get_model_input(data,nums, peak_rate)
     Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
     for i in range(0, len(b_res)):
         b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
@@ -19,9 +20,9 @@ def predict(data,years):
         for j in range(0, len(cur_fit_input[i])):
             temp = []
             temp.append(data[cnt][0])
-            cnt += 1
             fit_res = 2 * N_pred / (1 + np.cosh(b_pred * (data[cnt][0] - T_pred)))
-            temp.appned(fit_res)
+            cnt += 1
+            temp.append(fit_res)
             res.append(temp)
     k = len(data)
     p = len(b_res)
@@ -54,13 +55,13 @@ def predict(data,years):
     '''
 
 
-def fit(data):
+def fit(data, nums, peak_rate):
     ## data: 经过处理以后的年份和产量列表
     #origin_input:未经过归一化处理
     # model_input: 灰度模型N,T,b输入,经过归一化处理
     #cur_fit_input:
     #stat: 将来用于归一化还原的统计量信息
-    data, cur_fit_input, origin_input, model_input, stat = get_model_input(data)
+    data, cur_fit_input, origin_input, model_input, stat = get_model_input(data,nums, peak_rate)
     Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
     for i in range(0, len(b_res)):
         b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
@@ -74,9 +75,9 @@ def fit(data):
         for j in range(0, len(cur_fit_input[i])):
             temp = []
             temp.append(data[cnt][0])
-            cnt += 1
             fit_res = 2*N_pred/(1+np.cosh(b_pred*(data[cnt][0] - T_pred)))
-            temp.appned(fit_res)
+            temp.append(fit_res)
+            cnt += 1
             res.append(temp)
     return data, res
 
@@ -88,14 +89,14 @@ def get_fit_res(origin_input, model_input, stat):
     b_relevant = model_input[:, (0, 1)]
     b_res = xlsx_reader.GM_predict(b_actual, b_relevant, 'b')
     Nm_res = xlsx_reader.GM_predict(Nm_actual, Nm_relevant, 'Nm')
-    Tm_res = xlsx_reader.first_order_GM(origin_input[1,:])
+    Tm_res = xlsx_reader.first_order_GM(origin_input[:, 1])
     for i in range(0, len(b_res)):
         b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
         Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
     return Nm_res, Tm_res, b_res
 
 
-def get_model_input(data):
+def get_model_input(data,nums, peak_rate):
     pre = data
     data = []
     length = len(pre['y'].values)
@@ -104,10 +105,15 @@ def get_model_input(data):
         l.append(pre['ds'].values[i])
         l.append(pre['y'].values[i])
         data.append(l)
-    idx = data_preprocess.get_max_index(data)
+    idx = data_preprocess.get_max_index(data,nums, peak_rate)
     res = data_preprocess.get_curve_fit_input(data, idx)
     par = xlsx_reader.cur_fit(res)
     par = np.array(par)
+    cp = copy.deepcopy(par)
     model_input, stat = xlsx_reader.normalization(par)
-    return data, res, par, model_input, stat
+    return data, res, cp, model_input, stat
 
+
+data = pd.read_excel('D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx', sheet_name='样本2',header=0, skiprows=0)
+data = data_preprocess.preprocess(data)
+data, res = fit(data, 1, 0.3)

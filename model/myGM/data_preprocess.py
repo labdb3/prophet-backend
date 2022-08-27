@@ -1,8 +1,8 @@
 import pandas as pd
-import myGM.xlsx_reader as xlsx_reader
+import model.myGM.xlsx_reader as xlsx_reader
 import numpy as np
 import copy
-data = pd.read_excel("data/数据单元.xlsx", sheet_name='9', header=0,skiprows=0)
+##data = pd.read_excel("data/数据单元.xlsx", sheet_name='9', header=0,skiprows=0)
 def preprocess(data):
     data.columns = ['ds','y']
     i = 0
@@ -52,7 +52,7 @@ def preprocess(data):
     return data
 
 
-def get_max_index(data):
+def get_max_index(data, nums, peak_rate):
     res = []
     i = 0
     while data[i+1][1] < data[i][1] and i < len(data) + 1:
@@ -60,7 +60,7 @@ def get_max_index(data):
     if i > 0:
         res.append(i)
     while i < len(data):
-        flag, idx = is_peak(data, i, 0.3, 1)
+        flag, idx = is_peak(data, i, peak_rate, nums)
         if not flag:
             i += 1
         else:
@@ -76,7 +76,6 @@ def get_max_index(data):
 
 def is_peak(data, index, peak_rate, nums, back_trend_rate = 0.15):
     peak_num = data[index][1]
-
     for i in range(1, nums + 1):
         if index - i <= 0 or index + i >= len(data):
             return False, - 1
@@ -110,7 +109,7 @@ def get_curve_fit_input(data, end_idx):
     res.append(end)
     '''
 
-
+'''
 pre = preprocess(data)
 ##print(pre)
 data = []
@@ -133,16 +132,13 @@ Tm_actual = model_input[:, 1]
 Tm_relevant = model_input[:, (0, 2)]
 b_actual = model_input[:, 2]
 b_relevant = model_input[:, (0, 1)]
-b_res = xlsx_reader.GM_predict(b_actual, b_relevant,'b')
-Nm_res = xlsx_reader.GM_predict(Nm_actual,Nm_relevant, 'Nm')
-Tm_res = xlsx_reader.GM_predict(Tm_actual,Tm_relevant, 'Tm')
+b_res = xlsx_reader.GM_predict(b_actual, b_relevant, 'b')
+Nm_res = xlsx_reader.GM_predict(Nm_actual, Nm_relevant, 'Nm')
+Tm_res = xlsx_reader.GM_predict(Tm_actual, Tm_relevant, 'Tm')
 for i in range(0, len(b_res)):
     b_res[i] = b_res[i]*stat[2][1] + stat[2][0]
     Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
     Tm_res[i] = Tm_res[i] * stat[1][1] + stat[1][0]
-print('-------------')
-##xlsx_reader.draw(b_res, temp[:,2])
-##xlsx_reader.draw(Nm_res, temp[:,0])
 actual_production = []
 fitting_production = []
 for i in range(0, len(res)):
@@ -183,5 +179,5 @@ elif mean <= 0.1:
     print("该数据勉强适合灰度模型")
 else:
     print("该数据不适合灰度模型")
-
+'''
 # print(preprocess(data))

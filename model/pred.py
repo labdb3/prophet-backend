@@ -1,10 +1,8 @@
 from model.model import prophetModel, GMModel
-import myGM.data_preprocess as data_preprocess
+from model import myGM as data_preprocess
 
 import os
 import pandas as pd
-from prophet import Prophet
-
 
 ## change this to your laptop directory
 BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
@@ -33,7 +31,7 @@ def fit_GM(dataset,params=[1, 0.4, 0]):
     origin, fit = model.fit(data)
     return origin.to_numpy().tolist(), fit.to_numpy().tolist()
 
-
+## dataset:数据集文件名  years: 预测的年份数，比如说数据集最后一年是2020年，需要预测到2024年，则years = 4
 def pred_GM(dataset, years, params=[1, 0.4, 0]):
     data = pd.read_excel(os.path.join(BASE_DIR, dataset), header=0, skiprows=0)
     model = GMModel(params[0], params[1], params[2])
