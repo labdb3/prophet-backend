@@ -96,8 +96,8 @@ def get_fit_res(origin_input, model_input, stat):
     return Nm_res, Tm_res, b_res
 
 
-def get_model_input(data,nums, peak_rate):
-    pre = data
+def get_model_input(data, nums, peak_rate):
+    pre = data_preprocess.preprocess(data)
     data = []
     length = len(pre['y'].values)
     for i in range(0, length):
@@ -114,6 +114,8 @@ def get_model_input(data,nums, peak_rate):
     return data, res, cp, model_input, stat
 
 
+'''
 data = pd.read_excel('D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx', sheet_name='样本2',header=0, skiprows=0)
 data = data_preprocess.preprocess(data)
 data, res = fit(data, 1, 0.3)
+'''

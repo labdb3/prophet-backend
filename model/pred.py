@@ -1,4 +1,4 @@
-from model.model import prophetModel, GMModel
+from model.model_file import prophetModel, GMModel
 from model import myGM as data_preprocess
 
 import os

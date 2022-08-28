@@ -1,7 +1,7 @@
 import pandas as pd
-from prophet import Prophet
-import model.myGM.util
-from .util import *
+##from prophet import Prophet
+import model.myGM.util as util
+from model.util import *
 
 
 class MetaModel:
@@ -23,7 +23,7 @@ class prophetModel(MetaModel):
         self.changepoint_prior_scale = changepoint_prior_scale
         self.seasonality_prior_scale = seasonality_prior_scale
         self.data_prepare = data_prepare
-        self.model = Prophet(n_changepoints=self.n_changepoints,changepoint_prior_scale=self.changepoint_prior_scale,seasonality_prior_scale=self.seasonality_prior_scale)
+        ##self.model = Prophet(n_changepoints=self.n_changepoints,changepoint_prior_scale=self.changepoint_prior_scale,seasonality_prior_scale=self.seasonality_prior_scale)
 
     # fit(year:年份list，storage:储量list)
     def fit(self, year: list, storage: list):
@@ -71,12 +71,12 @@ class GMModel(MetaModel):
         self.option = option
 
     def fit(self,data):
-        return model.myGM.util.fit(data,self.nums, self.peak_rate)
+        return util.fit(data,self.nums, self.peak_rate)
 
     def predict(self,data,years):
-        return model.myGM.util.predict(data, years,self.nums, self.peak_rate)
+        return util.predict(data, years,self.nums, self.peak_rate)
 
-
+'''
 if __name__=='__main__':
     x = prophetModel(1000,5000,2000,"log")
     data = pd.read_excel("/home/fcg/lzd/prophet-backend/data/datasets/三个样本.xlsx", sheet_name='样本1',header=0,skiprows=0)
@@ -85,3 +85,13 @@ if __name__=='__main__':
     x.fit(data['ds'].values.tolist(),data['y'].values.tolist())
     predict = x.predict(data['ds'].values[0],len(data['ds']),5)
     # print(nihe_error(data['y'].values.tolist(),predict.values.tolist()))
+'''
+
+if __name__ == '__main__':
+    x = GMModel(nums=1, peak_rate=0.3, option=0)
+    data = pd.read_excel("D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx", sheet_name="样本1", header=0, skiprows=0)
+    predict_data, predict_res = x.predict(data, 5)
+    fit_data, fit_res = x.fit(data)
+    print(predict_data)
+    print(predict_res)
+    print(fit_res)
