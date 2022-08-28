@@ -1,9 +1,9 @@
 import pandas as pd
 
-import model.myGM.util as util
+import myGM.util as util
 import numpy as np
 from prophet import Prophet
-from .util import *
+from util import *
 from prophet import Prophet
 from scipy.optimize import curve_fit
 
@@ -71,7 +71,7 @@ class prophetModel(MetaModel):
         return forecast['yhat']
 
 
-<<<<<<< HEAD:model/model_file.py
+
 class GMModel(MetaModel):
     ## nums: 峰点左右点的数目（取两边的最大值，默认为1）
     ## peak_rate: 峰点相比左右临近点最小的增长率（取最大值，默认为0.4）
@@ -88,8 +88,6 @@ class GMModel(MetaModel):
     def predict(self,data,years):
         return util.predict(data, years,self.nums, self.peak_rate)
 
-'''
-=======
 
 class wenshiModel(MetaModel):
     def __init__(self,a=0,b=0,c=0):
@@ -121,10 +119,9 @@ class wenshiModel(MetaModel):
         return y
 
 
->>>>>>> f295a18 (WIP):model/model.py
+'''
 if __name__=='__main__':
     pass
-
     # x = wenshiModel()
     # data = pd.read_excel("/Users/zongdianliu/python/prophet-backend/data/datasets/三个样本.xlsx", sheet_name='样本1',header=0,skiprows=0)
     # data.columns=['ds','y']
@@ -136,18 +133,19 @@ if __name__=='__main__':
     # predict = x.predict(a,b,c,50)
     # print("predict",predict)
     # print(nihe_error(data['y'].values.tolist(),predict.values.tolist()))
-<<<<<<< HEAD:model/model_file.py
+
 '''
 
 if __name__ == '__main__':
     x = GMModel(nums=1, peak_rate=0.3, option=0)
-    data = pd.read_excel("D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx", sheet_name="样本1", header=0, skiprows=0)
+    data = pd.read_excel("/Users/zongdianliu/python/prophet-backend/data/datasets/三个样本.xlsx", sheet_name="样本1", header=0, skiprows=0)
     predict_data, predict_res = x.predict(data, 5)
+    print(data.shape)
     fit_data, fit_res = x.fit(data)
-    print(predict_data)
     print(predict_res)
-    print(fit_res)
-=======
+    # print(predict_res)
+    # print(fit_res)
+
 
 
 # if __name__=='__main__':
@@ -158,4 +156,4 @@ if __name__ == '__main__':
 #     x.fit(data['ds'].values.tolist(),data['y'].values.tolist())
 #     predict = x.predict(data['ds'].values[0],len(data['ds']),5)
 #     # print(nihe_error(data['y'].values.tolist(),predict.values.tolist()))
->>>>>>> f295a18 (WIP):model/model.py
+

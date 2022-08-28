@@ -1,13 +1,5 @@
-
-from model.model_file import prophetModel, GMModel
+from model.model import prophetModel, GMModel,wenshiModel
 from model import myGM as data_preprocess
-
-import os
-import pandas as pd
-
-## change this to your laptop directory
-BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
-
 import os
 import pandas as pd
 from prophet import Prophet
@@ -66,7 +58,12 @@ def getResultOfDataset_wensi(dataset):
     return pred_y
 
 def getResultOfDataset_GM(dataset):
-    pass
+    x = GMModel(nums=1, peak_rate=0.3, option=0)
+    fileName, sheetName = getFileName(dataset)
+    data = pd.read_excel(fileName, sheet_name=sheetName, header=0, skiprows=0)
+    predict_data, predict_res = x.predict(data, 5)
+    return [item[1] for item in predict_res]
+
 
 # 自定义参数的模型
 
@@ -98,24 +95,11 @@ def getResultWithParams_wensi(dataset,params):
     return pred_y
 
 def getResultWithParams_GM(dataset,params):
-    pass
-
-
-
-def fit_GM(dataset,params=[1, 0.4, 0]):
-    data = pd.read_excel(os.path.join(BASE_DIR, dataset), header=0, skiprows=0)
-    model = GMModel(params[0], params[1], params[2])
-    data = data_preprocess.preprocess(data)
-    origin, fit = model.fit(data)
-    return origin.to_numpy().tolist(), fit.to_numpy().tolist()
-
-## dataset:数据集文件名  years: 预测的年份数，比如说数据集最后一年是2020年，需要预测到2024年，则years = 4
-def pred_GM(dataset, years, params=[1, 0.4, 0]):
-    data = pd.read_excel(os.path.join(BASE_DIR, dataset), header=0, skiprows=0)
-    model = GMModel(params[0], params[1], params[2])
-    data = data_preprocess.preprocess(data)
-    origin,predict = model.pred(data, years)
-    return origin.to_numpy().tolist(), predict.to_numpy().tolist()
+    x = GMModel(nums=params["nums"], peak_rate=params["peak_rate"], option=params["option"])
+    fileName, sheetName = getFileName(dataset)
+    data = pd.read_excel(fileName, sheet_name=sheetName, header=0, skiprows=0)
+    predict_data, predict_res = x.predict(data, 5)
+    return [item[1] for item in predict_res]
 
 
 if __name__=='__main__':
