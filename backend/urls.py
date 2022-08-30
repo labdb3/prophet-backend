@@ -4,13 +4,19 @@ from . import views
 
 urlpatterns = [
     path("upload", views.upload),
-    path("index", views.index),
-    path("getAllModels", views.getAllModels),
+    path("saveTag",views.saveTag),
+    path("getTagData",views.getTagData),
     path("getAllDatasets", views.getAllDatasets),
-    path("getResultOfModel", views.getResultOfModel),
     path("getDataset",views.getDataset),
-    path("getResultWithParams",views.getResultWithParams),
+
+    # 模型对比与预测
+    path("getAllMetaModels", views.getAllMetaModels),
+    path("getResultOfModel", views.getResultOfModel),
+
+
+    # 模型调优
     path("saveModel",views.saveModel),
-    path("getSavedModels",views.getModelList_prophet),
-    path("loadModel_prophet",views.loadModel_prophet)
+    path("getSavedModels",views.getModelList),
+    path("loadModel",views.loadModel),
+    path("getResultWithParams",views.getResultWithParams),
 ]
