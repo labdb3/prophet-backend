@@ -89,7 +89,7 @@ if __name__=='__main__':
 
 if __name__ == '__main__':
     x = GMModel(nums=1, peak_rate=0.3, option=0)
-    data = pd.read_excel("D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx", sheet_name="样本1", header=0, skiprows=0)
+    data = pd.read_excel("D:\dblab3\prophet-backend\data\datasets\数据单元.xlsx", sheet_name="1", header=0, skiprows=0)
     predict_data, predict_res = x.predict(data, 5)
     fit_data, fit_res = x.fit(data)
     print(predict_data)

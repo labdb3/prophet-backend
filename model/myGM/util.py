@@ -17,10 +17,11 @@ def predict(data,years,nums, peak_rate):
         T_pred = Tm_res[i]
         b_pred = b_res[i]
         N_pred = Nm_res[i]
+        act_Tm = origin_input[i][1]
         for j in range(0, len(cur_fit_input[i])):
             temp = []
             temp.append(data[cnt][0])
-            fit_res = 2 * N_pred / (1 + np.cosh(b_pred * (data[cnt][0] - T_pred)))
+            fit_res = 2 * N_pred / (1 + np.cosh(b_pred * (data[cnt][0] - act_Tm)))
             cnt += 1
             temp.append(fit_res)
             res.append(temp)
@@ -29,6 +30,7 @@ def predict(data,years,nums, peak_rate):
     pred_b = b_res[p-1]
     pred_N = Nm_res[p-1]
     pred_Tm = Tm_res[p-1]
+
     start_year = data[k-1][0]
     for i in range(1, years + 1):
         temp = []
@@ -63,6 +65,7 @@ def fit(data, nums, peak_rate):
     #stat: 将来用于归一化还原的统计量信息
     data, cur_fit_input, origin_input, model_input, stat = get_model_input(data,nums, peak_rate)
     Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
+    print(Nm_res)
     for i in range(0, len(b_res)):
         b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
         Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
@@ -90,9 +93,6 @@ def get_fit_res(origin_input, model_input, stat):
     b_res = xlsx_reader.GM_predict(b_actual, b_relevant, 'b')
     Nm_res = xlsx_reader.GM_predict(Nm_actual, Nm_relevant, 'Nm')
     Tm_res = xlsx_reader.first_order_GM(origin_input[:, 1])
-    for i in range(0, len(b_res)):
-        b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
-        Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
     return Nm_res, Tm_res, b_res
 
 
@@ -114,8 +114,4 @@ def get_model_input(data, nums, peak_rate):
     return data, res, cp, model_input, stat
 
 
-'''
-data = pd.read_excel('D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx', sheet_name='样本2',header=0, skiprows=0)
-data = data_preprocess.preprocess(data)
-data, res = fit(data, 1, 0.3)
-'''
+

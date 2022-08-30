@@ -64,8 +64,6 @@ def get_max_index(data, nums, peak_rate):
         if not flag:
             i += 1
         else:
-            print("appending idx")
-            print(idx)
             res.append(idx)
             i = idx + 1
     length = len(res)
