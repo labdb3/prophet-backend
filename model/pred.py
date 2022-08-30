@@ -60,7 +60,7 @@ def getResultOfDataset_wensi(dataset):
 def getResultOfDataset_GM(dataset):
     x = GMModel(nums=1, peak_rate=0.3, option=0)
     fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(fileName, sheet_name=sheetName, header=0, skiprows=0)
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
     predict_data, predict_res = x.predict(data, 5)
     return [item[1] for item in predict_res]
 
@@ -97,7 +97,7 @@ def getResultWithParams_wensi(dataset,params):
 def getResultWithParams_GM(dataset,params):
     x = GMModel(nums=params["nums"], peak_rate=params["peak_rate"], option=params["option"])
     fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(fileName, sheet_name=sheetName, header=0, skiprows=0)
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
     predict_data, predict_res = x.predict(data, 5)
     return [item[1] for item in predict_res]
 

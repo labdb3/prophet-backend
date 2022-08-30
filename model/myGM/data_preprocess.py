@@ -1,5 +1,5 @@
 import pandas as pd
-import myGM.xlsx_reader as xlsx_reader
+import model.myGM.xlsx_reader as xlsx_reader
 import numpy as np
 import copy
 ##data = pd.read_excel("data/数据单元.xlsx", sheet_name='9', header=0,skiprows=0)

@@ -1,9 +1,9 @@
 import pandas as pd
 
-import myGM.util as util
+import model.myGM.util as util
 import numpy as np
 from prophet import Prophet
-from util import *
+from .util import *
 from prophet import Prophet
 from scipy.optimize import curve_fit
 

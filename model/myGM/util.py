@@ -1,5 +1,5 @@
-import myGM.xlsx_reader as xlsx_reader
-import myGM.data_preprocess as data_preprocess
+import model.myGM.xlsx_reader as xlsx_reader
+import model.myGM.data_preprocess as data_preprocess
 import numpy as np
 import copy
 import pandas as pd

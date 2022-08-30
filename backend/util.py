@@ -52,6 +52,9 @@ def saveModelToMongo_GM(params,dataset):
     mycol = mydb["GM"]
     doc = {
         "name": params["name"],
+        "nums": params["nums"],
+        "peak_rate":params["peak_rate"],
+        "option":params["option"],
         "dataset": dataset,
     }
     x = mycol.insert_one(doc)
