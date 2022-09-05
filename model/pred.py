@@ -25,7 +25,9 @@ def getFileName(query):
 def getResultOfDataset_prophet(dataset):
     fileName, sheetName = getFileName(dataset)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName).to_numpy().transpose().tolist()
+                         sheet_name=sheetName)
+    data = prophet_preprocess(data).to_numpy().transpose().tolist()
+
     model = prophetModel()
     model.fit(data[0], data[1])
     predict = model.predict(data[0][0], len(data[0]), 0)
@@ -38,21 +40,20 @@ def getResultOfDataset_wensi(dataset):
                          sheet_name=sheetName).to_numpy().transpose().tolist()
     model = wenshiModel()
 
-    print("data",data)
-    # 读取已经标记好的数据集合，如果没有找到，默认使用全部数据集合。
-    all_dataset_tag = pickle.load(open(os.path.join(BASE_DIR, 'all_dataset_tag.pkl'), "rb"))
-    if dataset in all_dataset_tag.keys():
-        print("#####")
-        tmp = all_dataset_tag[dataset]
-        print(tmp)
-        tmp_x = [int(year) - int(data[0][0]) + 1 for year in tmp]
-        tmp_y = [data[1][data[0].index(int(year))] for year in tmp]
-    else:
-        tmp_x = list(range(1, len(data[0]) + 1))
-        tmp_y = data[1]
+    # print("data",data)
+    # # 读取已经标记好的数据集合，如果没有找到，默认使用全部数据集合。
+    # all_dataset_tag = pickle.load(open(os.path.join(BASE_DIR, 'all_dataset_tag.pkl'), "rb"))
+    # if dataset in all_dataset_tag.keys():
+    #     print("#####")
+    #     tmp = all_dataset_tag[dataset]
+    #     print(tmp)
+    #     tmp_x = [int(year) - int(data[0][0]) + 1 for year in tmp]
+    #     tmp_y = [data[1][data[0].index(int(year))] for year in tmp]
+    # else:
+    tmp_x = list(range(1, len(data[0]) + 1))
+    tmp_y = data[1]
 
-    print("tmpx",tmp_x)
-    print("tmpy",tmp_y)
+
     model.fit(tmp_x,tmp_y)
     pred_y = model.predict(len(data[0]))
     return pred_y
@@ -70,7 +71,8 @@ def getResultOfDataset_GM(dataset):
 def getResultWithParams_prophet(dataset,params):
     fileName, sheetName = getFileName(dataset)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName).to_numpy().transpose().tolist()
+                         sheet_name=sheetName)
+    data = prophet_preprocess(data).to_numpy().transpose().tolist()
 
     print("params",params)
     if params["k"]==0 or params["k"]==None:
@@ -88,11 +90,20 @@ def getResultWithParams_wensi(dataset,params):
     fileName, sheetName = getFileName(dataset)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
                          sheet_name=sheetName).to_numpy().transpose().tolist()
-    model = wenshiModel(params["a"],params["b"],params["c"])
+
+    if params["a"]==0 and params["b"]==0 and params["c"]==0:
+        tmp_x = list(range(1, len(data[0]) + 1))
+        tmp_y = data[1]
+        model = wenshiModel()
+        model.fit(tmp_x, tmp_y)
+    else:
+        print("当前参数为：",params)
+        model = wenshiModel(params["a"],params["b"],params["c"])
 
 
     pred_y = model.predict(params["years"]+len(data[0]))
-    return pred_y
+    return pred_y,model.a,model.b,model.c
+
 
 def getResultWithParams_GM(dataset,params):
     x = GMModel(nums=params["nums"], peak_rate=params["peak_rate"], option=params["option"])

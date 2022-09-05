@@ -35,7 +35,7 @@ def saveModelToMongo_prophet(params,dataset):
 def saveModelToMongo_wensi(params,dataset):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
-    mycol = mydb["wensi"]
+    mycol = mydb["翁氏模型"]
     doc = {
         "name": params["name"],
         "a":params["a"],
@@ -49,7 +49,7 @@ def saveModelToMongo_wensi(params,dataset):
 def saveModelToMongo_GM(params,dataset):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
-    mycol = mydb["GM"]
+    mycol = mydb["灰度预测"]
     doc = {
         "name": params["name"],
         "nums": params["nums"],

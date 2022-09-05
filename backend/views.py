@@ -43,7 +43,7 @@ def upload(request):
 
 @csrf_exempt
 def getAllMetaModels(request):
-    models = ['prophet',"wensi","GM"]
+    models = ['prophet',"翁氏模型","灰度预测"]
     resp = [{"value":item,"label":item} for item in models]
     return JsonResponse(resp,safe=False)
 
@@ -87,10 +87,10 @@ def getResultOfModel(request):
         for model in models:
             if model=="prophet":
                 obj["prophet"] = getResultOfDataset_prophet(dataset_name)
-            elif model=="wensi":
-                obj["wensi"] = getResultOfDataset_wensi(dataset_name)
-            elif model=="GM":
-                obj["GM"] = getResultOfDataset_GM(dataset_name)
+            elif model=="翁氏模型":
+                obj["翁氏模型"] = getResultOfDataset_wensi(dataset_name)
+            elif model=="灰度预测":
+                obj["灰度预测"] = getResultOfDataset_GM(dataset_name)
 
 
         print(obj)
@@ -126,10 +126,10 @@ def getResultWithParams(request):
             obj["prophet"],obj["k"] = getResultWithParams_prophet(dataset,params)
             print(obj["k"],type(obj["k"]))
             obj["k"] = float(obj["k"])
-        elif model=="wensi":
-            obj["wensi"] = getResultWithParams_wensi(dataset,params)
-        elif model=="GM":
-            obj["GM"] = getResultWithParams_GM(dataset,params)
+        elif model=="翁氏模型":
+            obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
+        elif model=="灰度预测":
+            obj["灰度预测"] = getResultWithParams_GM(dataset,params)
 
 
         print("obj",obj)
@@ -154,9 +154,9 @@ def saveModel(request):
 
         if model=="prophet":
             saveModelToMongo_prophet(params,dataset)
-        elif model=="wensi":
+        elif model=="翁氏模型":
             saveModelToMongo_wensi(params,dataset)
-        elif model=="GM":
+        elif model=="灰度预测":
             saveModelToMongo_GM(params,dataset)
         return HttpResponse("ok")
 
@@ -233,10 +233,10 @@ def getModelList(request):
     mydb = myclient["lab3"]
     if model=="prophet":
         mycol = mydb["prophet"]
-    elif model=="wensi":
-        mycol = mydb["wensi"]
-    elif model=="GM":
-        mycol = mydb["GM"]
+    elif model=="翁氏模型":
+        mycol = mydb["翁氏模型"]
+    elif model=="灰度预测":
+        mycol = mydb["灰度预测"]
 
     res = []
     for x in mycol.find():
@@ -258,10 +258,10 @@ def loadModel(request):
     mydb = myclient["lab3"]
     if model == "prophet":
         mycol = mydb["prophet"]
-    elif model == "wensi":
-        mycol = mydb["wensi"]
-    elif model == "GM":
-        mycol = mydb["GM"]
+    elif model == "翁氏模型":
+        mycol = mydb["翁氏模型"]
+    elif model == "灰度预测":
+        mycol = mydb["灰度预测"]
 
     res = None
     for x in mycol.find():
@@ -286,10 +286,10 @@ def loadModel(request):
     if model=="prophet":
         obj["prophet"],obj["k"] = getResultWithParams_prophet(res["dataset"],res)
         obj["k"] = float(obj["k"])
-    elif model=="wensi":
-        obj["wensi"] = getResultWithParams_wensi(res["dataset"],res)
-    elif model=="GM":
-        obj["GM"] = getResultWithParams_GM(res["dataset"],res)
+    elif model=="翁氏模型":
+        obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
+    elif model=="灰度预测":
+        obj["灰度预测"] = getResultWithParams_GM(res["dataset"],res)
 
     print(obj)
 
