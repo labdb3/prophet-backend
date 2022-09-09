@@ -3,6 +3,7 @@ from model import myGM as data_preprocess
 import os
 import pandas as pd
 from prophet import Prophet
+import model.myGM.data_preprocess as data_preprocess
 from .util import *
 import pickle
 
@@ -59,7 +60,7 @@ def getResultOfDataset_wensi(dataset):
     return pred_y
 
 def getResultOfDataset_GM(dataset):
-    x = GMModel(nums=1, peak_rate=0.3, option=0)
+    x = GMModel()
     fileName, sheetName = getFileName(dataset)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
     predict_data, predict_res = x.predict(data, 5)
@@ -104,14 +105,38 @@ def getResultWithParams_wensi(dataset,params):
     pred_y = model.predict(params["years"]+len(data[0]))
     return pred_y,model.a,model.b,model.c
 
-
-def getResultWithParams_GM(dataset,params):
-    x = GMModel(nums=params["nums"], peak_rate=params["peak_rate"], option=params["option"])
-    fileName, sheetName = getFileName(dataset)
+## origin_data: 文件名
+## cur_fit_input: 峰值划定结果
+'''
+ 举例 cur_fit_input = [
+[[1966,23.66],[1967, 35.99],[1968,86.22],[1969, 32.33]],
+[[1970, 26.67], [1971, 38.89], [1972, 89.27], [1973, 28.35]]
+ ]
+'''
+def getResultWithParams_GM(origin_data, cur_fit_input, params):
+    if len(cur_fit_input) <= 1:
+        return [], "请至少划分两个旋回，否则无法进行拟合和预测"
+    x = GMModel()
+    fileName, sheetName = getFileName(origin_data)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
-    predict_data, predict_res = x.predict(data, 5)
+    predict_data, predict_res = x.predict(data, cur_fit_input, 5)
     return [item[1] for item in predict_res]
 
+
+## 得到数据预处理的结果，方便前端进行数据分段
+## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]
+def get_preprocess_res(dataset):
+    fileName, sheetName = getFileName(dataset)
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0,skiprows=0)
+    pre = data_preprocess.preprocess(data)
+    data = []
+    length = len(pre['y'].values)
+    for i in range(0, length):
+        l = []
+        l.append(pre['ds'].values[i])
+        l.append(pre['y'].values[i])
+        data.append(l)
+    return data
 
 if __name__=='__main__':
     predict = getResultOfDataset_prophet("三个样本.xlsx")

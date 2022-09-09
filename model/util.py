@@ -100,6 +100,7 @@ def prophet_preprocess(data):
     print(type(data))
     return data
 # writer = pd.ExcelWriter(r'./data.xlsx', engine = 'xlsxwriter')
+'''
 if __name__=='__main__':
     data = pd.read_excel("/Users/zongdianliu/python/prophet-backend/data/datasets/数据单元.xlsx", sheet_name='1',header=0,skiprows=0)
     print(data)
@@ -108,3 +109,4 @@ if __name__=='__main__':
     #     data.to_excel(writer, sheet_name = str(i))
     # writer.save()
     # writer.close()
+'''

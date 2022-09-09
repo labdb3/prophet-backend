@@ -66,11 +66,11 @@ def GM_predict(actual, relevant, type= 'Nm'):
     b2 = u[1][0]
     b3 = u[2][0]
     sum_res = np.zeros(k+1)
-    for i in range(0,k+1):
-        sum_res[i] = (actual[0]-(b2*X[i][0] + b3*X[i][1])/b1)*np.exp(-b1*(i + 1)) + (b2*X[i][0] + b3*X[i][1])/b1
+    for i in range(1,k+1):
+        sum_res[i] = (actual[0]-(b2*X[i][0] + b3*X[i][1])/b1)*np.exp(-b1*(i)) + (b2*X[i][0] + b3*X[i][1])/b1
     pred_res = []
     pred_res.append(actual[0])
-    for i in range(0, k + 1):
+    for i in range(0, k):
         pred = 0
         if i == 0:
             pred = sum_res[i] - pred_res[0]
