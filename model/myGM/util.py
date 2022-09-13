@@ -10,7 +10,9 @@ def get_preprocess(data):
 
 
 def predict(origin_data, nums, peak_rate, years):
-    origin_data, cur_fit_input, origin_model_input, model_input, stat = get_model_input(origin_data,nums,peak_rate)
+    origin_data, cur_fit_input, origin_model_input, model_input, stat, message = get_model_input(origin_data,nums,peak_rate)
+    if not message:
+        return [],[], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_model_input, model_input, stat)
 
     '''
@@ -45,7 +47,7 @@ def predict(origin_data, nums, peak_rate, years):
         fit_res = 2 * pred_N / (1 + np.cosh(pred_b * (i+start_year - pred_Tm)))
         temp.append(fit_res)
         res.append(temp)
-    return origin_data, res
+    return origin_data, res,True
     '''
     k = len(data)
     p = len(origin_input[1])
@@ -70,7 +72,9 @@ def fit(origin_data, nums, peak_rate):
     # model_input: 灰度模型N,T,b输入,经过归一化处理
     #cur_fit_input:
     #stat: 将来用于归一化还原的统计量信息
-    origin_data, cur_fit_input, origin_input, model_input, stat = get_model_input(origin_data,nums, peak_rate)
+    origin_data, cur_fit_input, origin_input, model_input, stat, message = get_model_input(origin_data,nums, peak_rate)
+    if not message:
+        return [],[], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
     '''
     for i in range(0, len(b_res)):
@@ -92,7 +96,7 @@ def fit(origin_data, nums, peak_rate):
             fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
             temp.append(fit_res)
             res.append(temp)
-    return origin_data, res
+    return origin_data, res,True
 
 
 def get_fit_res(origin_input, model_input, stat):
@@ -128,11 +132,13 @@ def get_model_input(data,nums,peak_rate):
         data.append(l)
     idx = data_preprocess.get_max_index(data,nums, peak_rate)
     res = data_preprocess.get_curve_fit_input(data, idx)
+    if len(res) < 2:
+        return [],[],[],[],[],[],False
     par = xlsx_reader.cur_fit(res)
     par = np.array(par)
     cp = copy.deepcopy(par)
     model_input, stat = xlsx_reader.normalization(par)
-    return data, res, cp, model_input, stat
+    return data, res, cp, model_input, stat, True
 
 
 def parse(input):
