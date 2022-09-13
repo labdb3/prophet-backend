@@ -6,6 +6,7 @@ from prophet import Prophet
 import model.myGM.data_preprocess as data_preprocess
 from .util import *
 import pickle
+import numpy as np
 
 BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
 
@@ -113,14 +114,27 @@ def getResultWithParams_wensi(dataset,params):
 [[1970, 26.67], [1971, 38.89], [1972, 89.27], [1973, 28.35]]
  ]
 '''
-def getResultWithParams_GM(origin_data, cur_fit_input, params):
+def getResultWithParams_GM(dataset,  params):
+    # 读取已经标记好的数据集合，如果没有找到，默认使用全部数据集合。
+    fileName, sheetName = getFileName(dataset)
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
+                         sheet_name=sheetName).to_numpy().transpose().tolist()
+    all_dataset_tag = pickle.load(open(os.path.join(BASE_DIR, 'all_dataset_tag.pkl'), "rb"))
+    if dataset in all_dataset_tag.keys():
+        tmp = all_dataset_tag[dataset]
+        tmp_x = [int(year) - int(data[0][0]) + 1 for year in tmp]
+        tmp_y = [data[1][data[0].index(int(year))] for year in tmp]
+    else:
+        return [],"尚未标记数据，至少标记两个数据点"
+
+    cur_fit_input = [[tmp_x[i],tmp_y[i]] for i in range(len(tmp_x))]
     if len(cur_fit_input) <= 1:
-        return [], "请至少划分两个旋回，否则无法进行拟合和预测"
-    x = GMModel()
-    fileName, sheetName = getFileName(origin_data)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
-    predict_data, predict_res = x.predict(data, cur_fit_input, 5)
-    return [item[1] for item in predict_res]
+        return [],"请至少划分两个旋回，否则无法进行拟合和预测"
+
+    x = GMModel(params["nums"],params["peak_rate"])
+    _data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
+    predict_data, predict_res = x.predict(_data, np.array(cur_fit_input).reshape((1,2,None)), 5)
+    return [item[1] for item in predict_res],None
 
 
 ## 得到数据预处理的结果，方便前端进行数据分段

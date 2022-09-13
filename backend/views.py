@@ -208,6 +208,7 @@ def getTagData(request):
     print("all tags",all_dataset_tag)
 
     dataset = request.GET.get('dataset', '')
+    cur_tag = request.GET.get('curtag', '')
     print("getTagData",dataset)
     if not os.path.exists(os.path.join(BASE_DIR,'all_dataset_tag.pkl')):
         return JsonResponse({
@@ -215,7 +216,7 @@ def getTagData(request):
         })
     else:
         all_dataset_tag = pickle.load(open(os.path.join(BASE_DIR,'all_dataset_tag.pkl'),"rb"))
-        if dataset not in all_dataset_tag.keys():
+        if dataset not in all_dataset_tag.keys() or cur_tag not in all_dataset_tag[dataset].keys():
             return JsonResponse({
                 'data': [],
             })
@@ -289,7 +290,7 @@ def loadModel(request):
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
     elif model=="灰度预测":
-        obj["灰度预测"] = getResultWithParams_GM(res["dataset"],res)
+        obj["灰度预测"],obj["msg"] = getResultWithParams_GM(res["dataset"],res)
 
     print(obj)
 
