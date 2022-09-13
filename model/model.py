@@ -82,11 +82,11 @@ class GMModel(MetaModel):
         self.peak_rate = peak_rate
         self.option = option
 
-    def fit(self, origin_data,cur_fit_input):
-        return util.fit(origin_data, cur_fit_input)
+    def fit(self, origin_data):
+        return util.fit(origin_data, nums=self.nums, peak_rate=self.peak_rate)
 
-    def predict(self, origin_data, cur_fit_input, years):
-        return util.predict(origin_data, cur_fit_input, years)
+    def predict(self, origin_data, years):
+        return util.predict(origin_data, nums=self.nums, peak_rate=self.peak_rate, years)
 
 
 class wenshiModel(MetaModel):
@@ -143,8 +143,6 @@ if __name__ == '__main__':
     print(data.shape)
     fit_data, fit_res = x.fit(data)
     print(predict_res)
-    # print(predict_res)
-    # print(fit_res)
 
 
 

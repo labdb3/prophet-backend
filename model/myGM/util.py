@@ -9,8 +9,8 @@ def get_preprocess(data):
     return 0
 
 
-def predict(origin_data, cur_fit_input, years):
-    cur_fit_input, origin_model_input, model_input, stat = get_model_input(cur_fit_input)
+def predict(origin_data, nums, peak_rate, years):
+    origin_data, cur_fit_input, origin_model_input, model_input, stat = get_model_input(origin_data,nums,peak_rate)
     Nm_res, Tm_res, b_res = get_fit_res(origin_model_input, model_input, stat)
 
     '''
@@ -64,13 +64,13 @@ def predict(origin_data, cur_fit_input, years):
     '''
 
 
-def fit(origin_data, cur_fit_input):
+def fit(origin_data, nums, peak_rate):
     ## data: 经过处理以后的年份和产量列表
     #origin_input:未经过归一化处理
     # model_input: 灰度模型N,T,b输入,经过归一化处理
     #cur_fit_input:
     #stat: 将来用于归一化还原的统计量信息
-    cur_fit_input, origin_input, model_input, stat = get_model_input(cur_fit_input)
+    origin_data, cur_fit_input, origin_input, model_input, stat = get_model_input(origin_data,nums, peak_rate)
     Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
     '''
     for i in range(0, len(b_res)):
@@ -117,8 +117,7 @@ def get_fit_res(origin_input, model_input, stat):
     return Nm_one, Tm_one, bm_one
 
 
-def get_model_input(data):
-    '''
+def get_model_input(data,nums,peak_rate):
     pre = data_preprocess.preprocess(data)
     data = []
     length = len(pre['y'].values)
@@ -129,14 +128,11 @@ def get_model_input(data):
         data.append(l)
     idx = data_preprocess.get_max_index(data,nums, peak_rate)
     res = data_preprocess.get_curve_fit_input(data, idx)
-    '''
-    par = xlsx_reader.cur_fit(data)
+    par = xlsx_reader.cur_fit(res)
     par = np.array(par)
-    print(par[:, 0])
-    print(par[:, 2])
     cp = copy.deepcopy(par)
     model_input, stat = xlsx_reader.normalization(par)
-    return data, cp, model_input, stat
+    return data, res, cp, model_input, stat
 
 
 def parse(input):
@@ -163,5 +159,9 @@ print(origin)
 print(res)
 xlsx_reader.draw(res, data)
 '''
-
+'''
+data = pd.read_excel("D:\dblab3\prophet-backend\data\datasets\三个样本.xlsx", skiprows=0,sheet_name="样本1")
+origin,res = fit(data, 1, 0.3)
+xlsx_reader.draw(res, origin)
+'''
 

@@ -2,7 +2,6 @@ import pandas as pd
 import model.myGM.xlsx_reader as xlsx_reader
 import numpy as np
 import copy
-##data = pd.read_excel("data/数据单元.xlsx", sheet_name='9', header=0,skiprows=0)
 def preprocess(data):
     data.columns = ['ds','y']
     i = 0
@@ -100,12 +99,6 @@ def get_curve_fit_input(data, end_idx):
             res.append(end)
         start_index = e + 1
     return res
-    '''
-    end = []
-    for j in range(start_idx, len(data)):
-        end.append(data[j])
-    res.append(end)
-    '''
 
 '''
 pre = preprocess(data)

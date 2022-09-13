@@ -98,7 +98,7 @@ def getResultWithParams_wensi(dataset,params):
         model = wenshiModel()
         model.fit(tmp_x, tmp_y)
     else:
-        print("当前参数为：",params)
+        print("当前参数为：", params)
         model = wenshiModel(params["a"],params["b"],params["c"])
 
 
@@ -113,13 +113,11 @@ def getResultWithParams_wensi(dataset,params):
 [[1970, 26.67], [1971, 38.89], [1972, 89.27], [1973, 28.35]]
  ]
 '''
-def getResultWithParams_GM(origin_data, cur_fit_input, params):
-    if len(cur_fit_input) <= 1:
-        return [], "请至少划分两个旋回，否则无法进行拟合和预测"
-    x = GMModel()
+def getResultWithParams_GM(origin_data,params):
+    x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
     fileName, sheetName = getFileName(origin_data)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
-    predict_data, predict_res = x.predict(data, cur_fit_input, 5)
+    predict_data, predict_res = x.predict(data, 5)
     return [item[1] for item in predict_res]
 
 
