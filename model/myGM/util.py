@@ -133,7 +133,7 @@ def get_model_input(data,nums,peak_rate):
     idx = data_preprocess.get_max_index(data,nums, peak_rate)
     res = data_preprocess.get_curve_fit_input(data, idx)
     if len(res) < 2:
-        return [],[],[],[],[],[],False
+        return [],[],[],[],[],False
     par = xlsx_reader.cur_fit(res)
     par = np.array(par)
     cp = copy.deepcopy(par)
