@@ -290,7 +290,7 @@ def loadModel(request):
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
     elif model=="灰度预测":
-        obj["灰度预测"],obj["msg"] = getResultWithParams_GM(res["dataset"],res)
+        obj["灰度预测"] = getResultWithParams_GM(res["dataset"],res)
 
     print(obj)
 
