@@ -129,8 +129,9 @@ def getResultWithParams(request):
         elif model=="翁氏模型":
             obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
         elif model=="灰度预测":
-            obj["灰度预测"] = getResultWithParams_GM(dataset,params)
-
+            obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
+            if msg != None:
+                obj["msg"] = msg
 
         print("obj",obj)
         return JsonResponse(
@@ -290,7 +291,9 @@ def loadModel(request):
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
     elif model=="灰度预测":
-        obj["灰度预测"] = getResultWithParams_GM(res["dataset"],res)
+        obj["灰度预测"],msg = getResultWithParams_GM(res["dataset"],res)
+        if msg!=None:
+            obj["msg"] = msg
 
     print(obj)
 
