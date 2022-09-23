@@ -1,6 +1,8 @@
 import os
 from .config import *
 import pymongo
+from model.pred import getResultOfDataset_wensi,getResultOfDataset_GM,getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,getResultOfDataset_prophet
+import pandas as pd
 
 """
 Example 1:
@@ -15,7 +17,7 @@ def getFileName(query):
             break
 
 
-    return [fileName,query.split("_")[1]]
+    return [fileName,"_".join(query.split("_")[1:])]
 
 
 def saveModelToMongo_prophet(params,dataset):
@@ -59,3 +61,48 @@ def saveModelToMongo_GM(params,dataset):
     }
     x = mycol.insert_one(doc)
 
+
+def loadModel_mutli_sub(name,model,years):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["lab3"]
+    if model == "prophet":
+        mycol = mydb["prophet"]
+    elif model == "翁氏模型":
+        mycol = mydb["翁氏模型"]
+    elif model == "灰度预测":
+        mycol = mydb["灰度预测"]
+
+    print("#####"*50)
+    res = None
+    for x in mycol.find():
+        if x["name"] == name:
+            res = x
+
+    fileName, sheetName = getFileName(res["dataset"])
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
+                         sheet_name=sheetName).to_numpy().transpose().tolist()
+
+    if years > 0:
+        for i in range(years):
+            data[0].append(data[0][-1] + 1)
+
+    obj = {}
+    res["years"] = years
+    print("res:",res)
+    if model == "prophet":
+        obj["model_prophet"], _ = getResultWithParams_prophet(res["dataset"], res)
+        obj["model_prophet_dataset_xAxis"] = data[0]
+        obj["model_prophet_dataset_yAxis"] = data[1]
+        obj["model_prophet_dataset_name"] = res["dataset"]
+    elif model == "翁氏模型":
+        obj["model_翁氏模型"], _, __, ___ = getResultWithParams_wensi(res["dataset"], res)
+        obj["model_翁氏模型_dataset_xAxis"] = data[0]
+        obj["model_翁氏模型_dataset_yAxis"] = data[1]
+        obj["model_翁氏模型_dataset_name"] = res["dataset"]
+    elif model == "灰度预测":
+        obj["model_灰度预测"], _ = getResultWithParams_GM(res["dataset"], res)
+        obj["model_灰度预测_dataset_xAxis"] = data[0]
+        obj["model_灰度预测_dataset_yAxis"] = data[1]
+        obj["model_灰度预测_dataset_name"] = res["dataset"]
+
+    return obj

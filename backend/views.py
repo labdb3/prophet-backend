@@ -312,6 +312,31 @@ def getModelList(request):
 
 
 @csrf_exempt
+def loadModel_multi(request):
+    data = json.loads(request.body.decode('utf-8'))
+    model = data.get("models")
+    years = data.get("years")
+    print("models:",model)
+    print("years:",years)
+
+    obj = {}
+    if model["prophet"][0]!="":
+        res = loadModel_mutli_sub(model["prophet"][0],"prophet",years)
+        obj.update(res)
+    if model["灰度预测"][0] != "":
+        res = loadModel_mutli_sub(model["灰度预测"][0], "灰度预测", years)
+        obj.update(res)
+    if model["翁氏模型"][0] != "":
+        res = loadModel_mutli_sub(model["翁氏模型"][0], "翁氏模型", years)
+        obj.update(res)
+
+    return JsonResponse(obj,safe=False)
+
+
+
+
+
+@csrf_exempt
 def loadModel(request):
     data = json.loads(request.body.decode('utf-8'))
     model = data.get("model")

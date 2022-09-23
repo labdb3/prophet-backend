@@ -11,7 +11,6 @@ BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
 
 
 def getFileName(query):
-    print('query',query)
     fileName = None
     for file in os.listdir(BASE_DIR):
         if file.split(".")[0] == query.split("_")[0]:
@@ -19,7 +18,7 @@ def getFileName(query):
             break
 
 
-    return [fileName,query.split("_")[1]]
+    return [fileName,"_".join(query.split("_")[1:])]
 
 
 # 默认参数的模型
@@ -78,7 +77,7 @@ def getResultWithParams_prophet(dataset,params):
                          sheet_name=sheetName)
     data = prophet_preprocess(data).to_numpy().transpose().tolist()
 
-    print("params",params)
+    # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel(params["n_changepoints"],params["changepoint_prior_scale"],params["seasonality_prior_scale"],"log")
         k = model.fit(data[0], data[1])
@@ -101,7 +100,7 @@ def getResultWithParams_wensi(dataset,params):
         model = wenshiModel()
         model.fit(tmp_x, tmp_y)
     else:
-        print("当前参数为：", params)
+        # print("当前参数为：", params)
         model = wenshiModel(params["a"],params["b"],params["c"])
 
 
@@ -118,15 +117,17 @@ def getResultWithParams_wensi(dataset,params):
 '''
 def getResultWithParams_GM(origin_data,params):
     x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
+    # print("?????",origin_data)
     fileName, sheetName = getFileName(origin_data)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
-    predict_data, predict_res, message = x.predict(data, 5)
-    if message:
-       return [item[1] for item in predict_res], None
-    else:
+    try:
+        predict_data, predict_res, message = x.predict(data, params["years"])
+        if message:
+           return [item[1] for item in predict_res], None
+        else:
+            return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+    except:
         return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
-
-
 ## 得到数据预处理的结果，方便前端进行数据分段
 ## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]
 def get_preprocess_res(dataset):
