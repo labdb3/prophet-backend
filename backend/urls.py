@@ -13,6 +13,10 @@ urlpatterns = [
     path("getAllMetaModels", views.getAllMetaModels),
     path("getResultOfModel", views.getResultOfModel),
 
+    # 数据预处理
+    path("getAllPreprocessMethods",views.getAllPreprocessMethods),
+    path("getResultOfPreprocess",views.getResultOfPreprocess),
+    path("saveDataset",views.saveDataset),
 
     # 模型调优
     path("saveModel",views.saveModel),

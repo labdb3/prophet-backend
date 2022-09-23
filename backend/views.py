@@ -2,6 +2,7 @@ import json
 import pickle
 import re
 
+import numpy as np
 from django.shortcuts import render
 
 # Create your views here.
@@ -14,6 +15,11 @@ import pandas as pd
 from model.pred import getResultOfDataset_wensi,getResultOfDataset_GM,getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,getResultOfDataset_prophet
 import pymongo
 from .util import *
+from data.preprocess import Method1
+import pandas
+import openpyxl
+
+
 
 
 def index(request):
@@ -61,7 +67,62 @@ def getAllDatasets(request):
     resp = [{"value": item, "label": item} for item in all_datasets]
     return JsonResponse(resp,safe=False)
 
+@csrf_exempt
+def getAllPreprocessMethods(request):
+    resp = [
+        {"value":"平滑处理","label":"平滑处理"},
+    ]
+    return JsonResponse(resp,safe=False)
 
+@csrf_exempt
+def getResultOfPreprocess(request):
+    dataset = request.GET.get('dataset', '')
+    method = request.GET.get('method', '')
+    print("dataset:",dataset,"method:",method)
+
+    fileName, sheetName = getFileName(dataset)
+    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
+                         sheet_name=sheetName).to_numpy().transpose().tolist()
+    _data = Method1(dataset)
+    obj = {
+        "dataset_xAxis": data[0],
+        "dataset_yAxis": data[1],
+        method:_data[1],
+    }
+
+    return JsonResponse(obj,safe=False)
+
+@csrf_exempt
+def saveDataset(request):
+    input = json.loads(request.body.decode('utf-8'))
+    name = input.get('name')
+    data = input.get('data')
+    base_data = input.get("base_data")
+    print("name:",name)
+    print("data:",data)
+    print("base_data:",base_data)
+
+
+    # 保存文件
+    # 创建一个Workbook对象，相当于创建了一个Excel文件
+    workbook=openpyxl.load_workbook(os.path.join(BASE_DIR,name.split("_")[0]+".xlsx"))
+    worksheet2 = workbook.create_sheet()
+    worksheet2.title = "_".join(name.split("_")[1:])
+    col1 = ["年份"] + base_data["xAxis"]
+    col2 = ["实际值"] + data[name.split("_")[-1]]
+
+    for i in range(0, len(col1)):
+        worksheet2.cell(i + 1, 1, col1[i])
+
+    # 填入第二列
+    for i in range(0, len(col2)):
+        worksheet2.cell(i + 1, 2, col2[i])
+
+    workbook.save(os.path.join(BASE_DIR,name.split("_")[0]+".xlsx"))
+    #workbook.save(os.path.join(BASE_DIR, "test" + ".xlsx"))
+    print(worksheet2.values)
+
+    return JsonResponse(name,safe=False)
 
 @csrf_exempt
 def getResultOfModel(request):
