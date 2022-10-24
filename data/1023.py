@@ -2,7 +2,8 @@ import pandas as pd
 import copy
 from matplotlib import pyplot
 import xlsxwriter
-
+data = pd.read_excel("./数据单元.xlsx", sheet_name='1', header=0, skiprows=0)
+data.columns = ['ds', 'y']
 
 def get_sum(data):
     data1 = copy.deepcopy(data)
@@ -306,71 +307,36 @@ def slide_window8(data,x1,x2,x3,x4,x5,x6,x7,x8):
     for i in range(ll):
         data1['y'].values[i] = data1['y'].values[i] - zb * (data1['y'].values[i] / sum)
     return data1
+#preprocess(data)
+#dataw=data
+#dataw=preprocess(dataw)
+dataw = slide_window8(data,1,1,1,1,9,1,1,1)
+#dataw = slide_window2(data,1,2)
+workbook = xlsxwriter.Workbook('sheet1.xlsx')
+worksheet = workbook.add_worksheet()
+for i in range(len(dataw)):
+    worksheet.write(i, 0, dataw['ds'].values[i])
+    worksheet.write(i, 1, dataw['y'].values[i])
+workbook.close()
+print("dataw", dataw)
+yw = dataw['y'].values
+y0 = data['y'].values
+y0 = copy.deepcopy(y0)
+x1 = [i for i in range(len(data))]
 
-
-# dataw = slide_window(data,6,0.85,1.15)
-#
-# print(data)
-# print(dataw)
-# #
-# workbook = xlsxwriter.Workbook('sheet1.xlsx')
-# worksheet = workbook.add_worksheet()
-# for i in range(len(dataw)):
-#     worksheet.write(i, 0, dataw['ds'].values[i])
-#     worksheet.write(i, 1, dataw['y'].values[i])
-# workbook.close()
-# print("dataw", dataw)
-# yw = dataw['y'].values
-# y0 = data['y'].values
-# y0 = copy.deepcopy(y0)
-# x1 = [i for i in range(len(data))]
-#
-# # print(y0)
-# pyplot.plot(x1, y0, label='INITIALLY')
-# # pyplot.plot(x1, y1, label='PREPROC1')
-# # pyplot.plot(x1, y2, label='WS=3')
-# pyplot.plot(x1, yw, label='W')
-# # pyplot.plot(x1, y3, label='WS=5')
-# pyplot.title("log_sample1 new")
-# pyplot.legend()
-# pyplot.show()
-# print('datasum', get_sum(data))
-# print('datawsum', get_sum(dataw))
-
-import os
-
-BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
-
-def getFileName(query):
-    fileName = None
-    for file in os.listdir(BASE_DIR):
-        if file.split(".")[0] == query.split("_")[0]:
-            fileName = file
-            break
-
-
-    return [fileName,query.split("_")[1]]
-
-
-
-def Method1(dataName,window_size):
-    fileName, sheetName = getFileName(dataName)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName)
-
-    data.columns = ['ds', 'y']
-    if window_size==2:
-        dataw =  slide_window2(data,1,1)
-    elif window_size==3:
-        dataw = slide_window3(data, 1, 1, 1)
-    elif window_size==4:
-        dataw = slide_window4(data, 1, 1, 1, 1)
-    elif window_size==5:
-        dataw = slide_window5(data, 1, 1, 1, 1, 9)
-    elif window_size==6:
-        dataw = slide_window6(data, 1, 1, 1, 1, 9, 1)
-    elif window_size==7:
-        dataw = slide_window7(data, 1, 1, 1, 1, 9, 1, 1)
-    elif window_size==8:
-        dataw = slide_window8(data, 1, 1, 1, 1, 9, 1, 1, 1)
-    return dataw.to_numpy().transpose().tolist()
+# print(y0)
+pyplot.plot(x1, y0, label='INITIALLY')
+# pyplot.plot(x1, y1, label='PREPROC1')
+# pyplot.plot(x1, y2, label='WS=3')
+pyplot.plot(x1, yw, label='W')
+# pyplot.plot(x1, y3, label='WS=5')
+pyplot.title("log_sample1 new")
+pyplot.legend()
+pyplot.show()
+data1 = copy.deepcopy(data)
+ll = len(data1)
+for i in range(ll):
+  if data1['y'].values[i] == 1:
+        data1['y'].values[i] = 0
+print('datasum', get_sum(data1))
+print('datawsum', get_sum(dataw))

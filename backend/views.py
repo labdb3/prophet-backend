@@ -78,18 +78,20 @@ def getAllPreprocessMethods(request):
 def getResultOfPreprocess(request):
     dataset = request.GET.get('dataset', '')
     method = request.GET.get('method', '')
-    print("dataset:",dataset,"method:",method)
+    window_size = [int(item) for item in list(request.GET.get('window_size','').split(","))]
+    print("dataset:",dataset,"method:",method,"window_size",window_size)
 
     fileName, sheetName = getFileName(dataset)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
                          sheet_name=sheetName).to_numpy().transpose().tolist()
-    _data = Method1(dataset)
+
     obj = {
         "dataset_xAxis": data[0],
         "dataset_yAxis": data[1],
-        method:_data[1],
     }
-
+    for size in window_size:
+        _data = Method1(dataset,size)
+        obj[method+str(size)]=_data[1]
     return JsonResponse(obj,safe=False)
 
 @csrf_exempt
@@ -98,18 +100,29 @@ def saveDataset(request):
     name = input.get('name')
     data = input.get('data')
     base_data = input.get("base_data")
+    window_size = input.get("window_size")
     print("name:",name)
     print("data:",data)
     print("base_data:",base_data)
+    print("window_size",window_size)
 
+    if len(data.keys())==0 or len(base_data.keys())==0:
+        print("数据为空，保存失败")
+        return JsonResponse(name, safe=False)
 
+    # 首先判断是否存在当前sheet
+    xl = pd.ExcelFile(os.path.join(BASE_DIR,name.split("_")[0]+".xlsx"))
+    print(xl.sheet_names)
+    if "_".join(name.split("_")[1:]) in xl.sheet_names:
+        print("预处理数据已存在")
+        return JsonResponse(name, safe=False)
     # 保存文件
     # 创建一个Workbook对象，相当于创建了一个Excel文件
     workbook=openpyxl.load_workbook(os.path.join(BASE_DIR,name.split("_")[0]+".xlsx"))
     worksheet2 = workbook.create_sheet()
     worksheet2.title = "_".join(name.split("_")[1:])
     col1 = ["年份"] + base_data["xAxis"]
-    col2 = ["实际值"] + data[name.split("_")[-1]]
+    col2 = ["实际值"] + data["".join(name.split("_")[-2:])]
 
     for i in range(0, len(col1)):
         worksheet2.cell(i + 1, 1, col1[i])
@@ -183,14 +196,24 @@ def getResultWithParams(request):
             "dataset_yAxis":data[1]
         }
 
+        def get_loss(a,b):
+            sum = 0
+            for i in range(len(a)):
+                sum +=(a[i]-b[i])*(a[i]-b[i])
+            return sum/len(a)
+
         if model=="prophet":
             obj["prophet"],obj["k"] = getResultWithParams_prophet(dataset,params)
             print(obj["k"],type(obj["k"]))
             obj["k"] = float(obj["k"])
+            obj["loss"] = get_loss(obj["dataset_yAxis"],obj["prophet"])
+
         elif model=="翁氏模型":
             obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
+            obj["loss"] = get_loss(obj["dataset_yAxis"], obj["翁氏模型"])
         elif model=="灰度预测":
             obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
+            obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
             if msg != None:
                 obj["msg"] = msg
 
@@ -233,11 +256,15 @@ def getDataset(request):
 
     data = pd.read_excel(os.path.join(BASE_DIR,fileName), header=0, skiprows=0,sheet_name=sheetName).to_numpy().transpose().tolist()
     print(data)
+    cumulative = [data[1][0]]
+    for i in range(1,len(data[1])):
+        cumulative.append(data[1][i]+cumulative[-1])
     return JsonResponse(
         {
             "name":query,
             "xAxis":data[0],
             "yAxis":data[1],
+            "cumulative":cumulative,
         }
     )
 
