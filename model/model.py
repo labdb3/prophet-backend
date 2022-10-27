@@ -20,7 +20,7 @@ class MetaModel:
         pass
 
 
-# prophet(n_changepoints:突变性,changepoint_prior_scale:趋势性,seasonality_prior_scale:周期性，data_prepare:数据预处理方式)
+# prophet(n_changepoints:趋势突变性,changepoint_prior_scale:突变拟合程度,seasonality_prior_scale:周期性重要度，data_prepare:数据预处理方式)
 class prophetModel(MetaModel):
     def __init__(self,n_changepoints=1000,changepoint_prior_scale=5000,seasonality_prior_scale=2000,data_prepare="log",k=0):
         super(MetaModel, self).__init__()
