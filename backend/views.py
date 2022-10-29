@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 import PIL.Image as Image
 from io import BytesIO
 import base64
-
+import matplotlib
+matplotlib.use('Agg')
 
 @csrf_exempt
 def upload(request):
