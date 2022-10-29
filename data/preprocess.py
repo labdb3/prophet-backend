@@ -2,7 +2,7 @@ import pandas as pd
 import copy
 from matplotlib import pyplot
 import xlsxwriter
-
+from common.common import *
 
 def get_sum(data):
     data1 = copy.deepcopy(data)
@@ -337,28 +337,13 @@ def slide_window8(data,x1,x2,x3,x4,x5,x6,x7,x8):
 # print('datasum', get_sum(data))
 # print('datawsum', get_sum(dataw))
 
-import os
-
-BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
-
-def getFileName(query):
-    fileName = None
-    for file in os.listdir(BASE_DIR):
-        if file.split(".")[0] == query.split("_")[0]:
-            fileName = file
-            break
-
-
-    return [fileName,query.split("_")[1]]
-
 
 
 def Method1(dataName,window_size):
-    fileName, sheetName = getFileName(dataName)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName)
-
+    fileName,sheetName = getFileName(dataName)
+    data = GetDataFrame_dataset(fileName,sheetName,'ds','y')
     data.columns = ['ds', 'y']
+
     if window_size==2:
         dataw =  slide_window2(data,1,1)
     elif window_size==3:
@@ -366,11 +351,11 @@ def Method1(dataName,window_size):
     elif window_size==4:
         dataw = slide_window4(data, 1, 1, 1, 1)
     elif window_size==5:
-        dataw = slide_window5(data, 1, 1, 1, 1, 9)
+        dataw = slide_window5(data, 1, 1, 1, 1, 1)
     elif window_size==6:
-        dataw = slide_window6(data, 1, 1, 1, 1, 9, 1)
+        dataw = slide_window6(data, 1, 1, 1, 1, 1, 1)
     elif window_size==7:
-        dataw = slide_window7(data, 1, 1, 1, 1, 9, 1, 1)
+        dataw = slide_window7(data, 1, 1, 1, 1, 1, 1, 1)
     elif window_size==8:
-        dataw = slide_window8(data, 1, 1, 1, 1, 9, 1, 1, 1)
+        dataw = slide_window8(data, 1, 1, 1, 1, 1, 1, 1, 1)
     return dataw.to_numpy().transpose().tolist()

@@ -6,28 +6,14 @@ from prophet import Prophet
 import model.myGM.data_preprocess as data_preprocess
 from .util import *
 import pickle
+import json
+from common.common import *
 
-BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
-
-
-def getFileName(query):
-    fileName = None
-    for file in os.listdir(BASE_DIR):
-        if file.split(".")[0] == query.split("_")[0]:
-            fileName = file
-            break
-
-
-    return [fileName,"_".join(query.split("_")[1:])]
 
 
 # 默认参数的模型
 def getResultOfDataset_prophet(dataset):
-    fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName)
-    data = prophet_preprocess(data).to_numpy().transpose().tolist()
-
+    data = GetData(dataset)
     model = prophetModel()
     model.fit(data[0], data[1])
     predict = model.predict(data[0][0], len(data[0]), 0)
@@ -35,33 +21,19 @@ def getResultOfDataset_prophet(dataset):
 
 
 def getResultOfDataset_wensi(dataset):
-    fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName).to_numpy().transpose().tolist()
+    data = GetData(dataset)
     model = wenshiModel()
-
-    # print("data",data)
-    # # 读取已经标记好的数据集合，如果没有找到，默认使用全部数据集合。
-    # all_dataset_tag = pickle.load(open(os.path.join(BASE_DIR, 'all_dataset_tag.pkl'), "rb"))
-    # if dataset in all_dataset_tag.keys():
-    #     print("#####")
-    #     tmp = all_dataset_tag[dataset]
-    #     print(tmp)
-    #     tmp_x = [int(year) - int(data[0][0]) + 1 for year in tmp]
-    #     tmp_y = [data[1][data[0].index(int(year))] for year in tmp]
-    # else:
     tmp_x = list(range(1, len(data[0]) + 1))
     tmp_y = data[1]
-
-
     model.fit(tmp_x,tmp_y)
     pred_y = model.predict(len(data[0]))
     return pred_y
 
+
 def getResultOfDataset_GM(dataset):
     x = GMModel()
     fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
     predict_data, predict_res, message = x.predict(data, 5)
     if message:
        return [item[1] for item in predict_res],None
@@ -72,10 +44,7 @@ def getResultOfDataset_GM(dataset):
 # 自定义参数的模型
 
 def getResultWithParams_prophet(dataset,params):
-    fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName)
-    data = prophet_preprocess(data).to_numpy().transpose().tolist()
+    data = GetData(dataset)
 
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
@@ -90,9 +59,7 @@ def getResultWithParams_prophet(dataset,params):
 
 
 def getResultWithParams_wensi(dataset,params):
-    fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName).to_numpy().transpose().tolist()
+    data = GetData(dataset)
 
     if params["a"]==0 and params["b"]==0 and params["c"]==0:
         tmp_x = list(range(1, len(data[0]) + 1))
@@ -117,9 +84,8 @@ def getResultWithParams_wensi(dataset,params):
 '''
 def getResultWithParams_GM(origin_data,params):
     x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
-    # print("?????",origin_data)
     fileName, sheetName = getFileName(origin_data)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
     try:
         predict_data, predict_res, message = x.predict(data, params["years"])
         if message:
@@ -128,11 +94,12 @@ def getResultWithParams_GM(origin_data,params):
             return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
     except:
         return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+
 ## 得到数据预处理的结果，方便前端进行数据分段
 ## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]
 def get_preprocess_res(dataset):
     fileName, sheetName = getFileName(dataset)
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0,skiprows=0)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
     pre = data_preprocess.preprocess(data)
     data = []
     length = len(pre['y'].values)
@@ -143,6 +110,3 @@ def get_preprocess_res(dataset):
         data.append(l)
     return data
 
-if __name__=='__main__':
-    predict = getResultOfDataset_prophet("三个样本.xlsx")
-    print(predict)
