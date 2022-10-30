@@ -9,7 +9,7 @@ import pickle
 import json
 from common.common import *
 import model.sum.sum_partition as sum_partition
-
+from model.sum.sum_partition import res_list, cur_list
 
 
 # 默认参数的模型
@@ -125,6 +125,12 @@ def get_sum_fitting(dataset, params):
             fitting_y_list: 拟合的累积产量，格式与x_list相同
             jpg_name: 图片文件名称
     '''
+    params = {
+        "partition_num":3,
+        "degree":3,
+    }
+    cur_list = []
+    res_list = []
     fileName, sheetName = getFileName(dataset)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
     pre = data_preprocess.preprocess(data)

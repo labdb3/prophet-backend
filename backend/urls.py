@@ -29,5 +29,6 @@ urlpatterns = [
 
     # 聚类展示
     path("showPhoto",views.showPhoto),
-    path("clustering",views.showClustering)
+    path("clustering",views.showClustering),
+    path("getSumFitting",views.getSumFitting)
 ]

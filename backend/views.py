@@ -18,6 +18,7 @@ import base64
 import matplotlib
 from model.k_means_platform import k_means
 matplotlib.use('Agg')
+from model.pred import get_sum_fitting
 
 @csrf_exempt
 def upload(request):
@@ -414,4 +415,20 @@ def showClustering(request):
 
     return JsonResponse(data, safe=False)
 
+@csrf_exempt
+def getSumFitting(request):
+    dataset = request.GET.get("dataset", '')
+    fig = get_sum_fitting(dataset,None)
+    print(fig)
+    img_file = Image.open(fig)
+    # 将图片保存到内存中
+    f = BytesIO()
+    img_file.save(f, 'jpeg')
+    # 从内存中取出bytes类型的图片
+    data = f.getvalue()
+    # 将bytes转成base64
+    data = base64.b64encode(data).decode()
+
+
+    return JsonResponse(data, safe=False)
 

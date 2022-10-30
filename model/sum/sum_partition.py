@@ -6,8 +6,8 @@ import os
 from model.pred import BASE_DIR
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.rcParams['font.sans-serif'] = ['Simsun']
-matplotlib.rcParams['font.size'] = 11
+# matplotlib.rcParams['font.sans-serif'] = ['Simsun']
+# matplotlib.rcParams['font.size'] = 11
 
 res_list = []
 cur_list = []
@@ -47,6 +47,8 @@ def get_partition(input_sum, partition_num):
            partition_num: 划分段数
     :return:
     '''
+    res_list = []
+    cur_list = []
     length = len(input_sum)
     print(length)
 
@@ -59,15 +61,20 @@ def get_partition(input_sum, partition_num):
     for i in range(1, length):
         prefix_sum[i] = prefix_sum[i-1] + value_sum[i]
         square_prefix_sum[i] = square_prefix_sum[i-1] + value_sum[i]* value_sum[i]
-    res_list = []
-    cur_list = []
+
+
+    print("------")
+    print(res_list)
+    print(cur_list)
     res_list = dfs(cur_idx=0, cur_length=0, n=length - 1, m=partition_num)
+    print(res_list)
     min_diff = 1e11
     min_partition_plan = []
     for partition_plan in res_list:
         curr_diff = 0e0
         prev_idx = -1
         for num in partition_plan:
+            ##print(str(num) + " "+ str(prev_idx))
             curr_expectation = (prefix_sum[num] - (0 if prev_idx == -1 else prefix_sum[prev_idx]))/(num - prev_idx)
             curr_square_expectation = (square_prefix_sum[num] - (0 if prev_idx == -1 else square_prefix_sum[prev_idx]))/(num - prev_idx)
             curr_diff += curr_square_expectation - curr_expectation* curr_expectation
