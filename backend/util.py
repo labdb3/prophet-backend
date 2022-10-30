@@ -1,23 +1,6 @@
-import os
-from .config import *
 import pymongo
 from model.pred import getResultOfDataset_wensi,getResultOfDataset_GM,getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,getResultOfDataset_prophet
-import pandas as pd
-
-"""
-Example 1:
-    input:三个样本_样本1
-    output:[三个样本.xlsx,样本1]
-"""
-def getFileName(query):
-    fileName = None
-    for file in os.listdir(BASE_DIR):
-        if file.split(".")[0] == query.split("_")[0]:
-            fileName = file
-            break
-
-
-    return [fileName,"_".join(query.split("_")[1:])]
+from common.common import *
 
 
 def saveModelToMongo_prophet(params,dataset):
@@ -62,6 +45,27 @@ def saveModelToMongo_GM(params,dataset):
     x = mycol.insert_one(doc)
 
 
+def deleteModel_mongodb(model,name):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["lab3"]
+    if model == "prophet":
+        mycol = mydb["prophet"]
+    elif model == "翁氏模型":
+        mycol = mydb["翁氏模型"]
+    elif model == "灰度预测":
+        mycol = mydb["灰度预测"]
+
+    print("#####" * 50)
+    res = None
+    for x in mycol.find():
+        if x["name"] == name:
+            res = x
+    if res==None:
+        return
+
+    mycol.delete_one(res)
+
+
 def loadModel_mutli_sub(name,model,years):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
@@ -78,10 +82,8 @@ def loadModel_mutli_sub(name,model,years):
         if x["name"] == name:
             res = x
 
-    fileName, sheetName = getFileName(res["dataset"])
-    data = pd.read_excel(os.path.join(BASE_DIR, fileName), header=0, skiprows=0,
-                         sheet_name=sheetName).to_numpy().transpose().tolist()
 
+    data = GetData(res["dataset"])
     if years > 0:
         for i in range(years):
             data[0].append(data[0][-1] + 1)

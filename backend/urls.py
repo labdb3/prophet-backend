@@ -4,10 +4,9 @@ from . import views
 
 urlpatterns = [
     path("upload", views.upload),
-    path("saveTag",views.saveTag),
-    path("getTagData",views.getTagData),
     path("getAllDatasets", views.getAllDatasets),
     path("getDataset",views.getDataset),
+    path("deleteData",views.deleteDataSet),
 
     # 模型对比与预测
     path("getAllMetaModels", views.getAllMetaModels),
@@ -24,4 +23,10 @@ urlpatterns = [
     path("getSavedModels",views.getModelList),
     path("loadModel",views.loadModel),
     path("getResultWithParams",views.getResultWithParams),
+
+    # 模型删除
+    path("deleteModel",views.deleteModel),
+
+    # 聚类展示
+    path("showPhoto",views.showPhoto),
 ]

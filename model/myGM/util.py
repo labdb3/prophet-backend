@@ -9,8 +9,8 @@ def get_preprocess(data):
     return 0
 
 
-def predict(origin_data, nums, peak_rate, years, cut_idx):
-    origin_data, cur_fit_input, origin_model_input, message = get_m_input(origin_data, cut_idx)
+def predict(origin_data, nums, peak_rate, years, cut_idx = []):
+    origin_data, cur_fit_input, origin_model_input, message = get_model_input(origin_data, nums, peak_rate)
     if not message:
         return [],[], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
@@ -22,8 +22,6 @@ def predict(origin_data, nums, peak_rate, years, cut_idx):
     '''
     res = []
     start = origin_data[0][0]
-    print(Tm_res)
-    print(origin_model_input[:,1])
     for i in range(0, len(cur_fit_input)):
         T_pred = Tm_res[i]##origin_model_input[i][1]######
         b_pred = b_res[i]
@@ -68,13 +66,13 @@ def predict(origin_data, nums, peak_rate, years, cut_idx):
     '''
 
 
-def fit(origin_data, nums, peak_rate, cut_idx):
+def fit(origin_data, nums, peak_rate, cut_idx = []):
     ## data: 经过处理以后的年份和产量列表
     #origin_input:未经过归一化处理
     # model_input: 灰度模型N,T,b输入,经过归一化处理
     #cur_fit_input:
     #stat: 将来用于归一化还原的统计量信息
-    origin_data, cur_fit_input, origin_input, message = get_m_input(origin_data, cut_idx)
+    origin_data, cur_fit_input, origin_input, message = get_model_input(origin_data, nums, peak_rate)
     if not message:
         return [],[], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_input)

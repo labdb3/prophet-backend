@@ -76,7 +76,7 @@ class GMModel(MetaModel):
     ## nums: 峰点左右点的数目（取两边的最大值，默认为1）
     ## peak_rate: 峰点相比左右临近点最小的增长率（取最大值，默认为0.4）
     ## option: 保留选项，将来用作用户自行划定轮回区间使用
-    def __init__(self, nums=1, peak_rate=0.4, option=0, cut_idx = None):
+    def __init__(self, nums=1, peak_rate=0.4, option=0, cut_idx = []):
         super(MetaModel, self).__init__()
         self.nums = nums
         self.peak_rate = peak_rate

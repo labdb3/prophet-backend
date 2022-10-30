@@ -13,6 +13,19 @@ res_list = []
 cur_list = []
 
 
+def get_sum(data_frame):
+    data = []
+    length = len(data_frame['y'].values)
+    for i in range(0, length):
+        l = []
+        l.append(data_frame['ds'].values[i])
+        l.append(data_frame['y'].values[i])
+        data.append(l)
+    for i in range(1, len(data)):
+        data[i][1] += data[i-1][1]
+    return data
+
+
 def dfs(cur_idx, cur_length, n, m):
     ##print(str(cur_length) + " " + str(m))
     if cur_length == m-1:
@@ -98,15 +111,24 @@ def partition_fitting(partition, deg):
     return x_list, y_list, fitting_y_list
 
 
+def save_plot(data_name, x, y, fit_y):
+    for i in range(0, len(x)):
+        plt.plot(x[i], y[i])
+        plt.plot(x[i], fit_y[i])
+    file_name = data_name +"_sum_fitting.jpeg"
+    plt.savefig(file_name)
+    return file_name
 
+
+'''
 data = pd.read_excel(os.path.join(BASE_DIR, "三个样本.xlsx"), sheet_name="样本1", header=0,skiprows=0)
-pre = data_preprocess.preprocess(data)
+data = data_preprocess.preprocess(data)
 data = []
-length = len(pre['y'].values)
+length = len(data['y'].values)
 for i in range(0, length):
     l = []
-    l.append(pre['ds'].values[i])
-    l.append(pre['y'].values[i])
+    l.append(data['ds'].values[i])
+    l.append(data['y'].values[i])
     data.append(l)
 
 for i in range(1, len(data)):
@@ -118,6 +140,7 @@ for i in range(0, len(x)):
     plt.plot(x[i], y[i])
     plt.plot(x[i], fit_y[i])
 plt.show()
+'''
 
 
 
