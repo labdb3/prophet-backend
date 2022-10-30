@@ -16,6 +16,7 @@ import PIL.Image as Image
 from io import BytesIO
 import base64
 import matplotlib
+from model.k_means_platform import k_means
 matplotlib.use('Agg')
 
 @csrf_exempt
@@ -67,6 +68,7 @@ def deleteDataSet(request):
     DumpDataBase(all_data)
 
     return JsonResponse({},safe=False)
+
 
 
 @csrf_exempt
@@ -386,5 +388,30 @@ def showPhoto(request):
 
     return JsonResponse(data,safe=False)
 
+@csrf_exempt
+def showClustering(request):
+    all_data = LoadDataBase()
+    sheetname = []
+    data = []
+    mins_len = 9999999
+    for fileName in all_data.keys():
+        for sheetName in all_data[fileName]:
+            sheetname.append(fileName+"-"+sheetName)
+            data.append(all_data[fileName][sheetName]["yAxis"])
+            if len(all_data[fileName][sheetName]["yAxis"])<mins_len:
+                mins_len = len(all_data[fileName][sheetName]["yAxis"])
+
+
+    k_means(sheetname,data)
+    img_file = Image.open("demo.jpeg")
+    # 将图片保存到内存中
+    f = BytesIO()
+    img_file.save(f, 'jpeg')
+    # 从内存中取出bytes类型的图片
+    data = f.getvalue()
+    # 将bytes转成base64
+    data = base64.b64encode(data).decode()
+
+    return JsonResponse(data, safe=False)
 
 
