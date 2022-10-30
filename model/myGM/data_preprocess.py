@@ -10,7 +10,6 @@ def preprocess(data):
             temp = i
             while(data['y'].values[i+1] == 0 or data['y'].values[i+1]==1):
                 i += 1
-            ##print(temp, i)
             if temp == i:
                 if i == 0:
                     data['y'].values[0] = 2/5*data['y'].values[1]

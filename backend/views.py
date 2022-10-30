@@ -35,6 +35,7 @@ def upload(request):
                 myFile = request.FILES[i]
             if myFile:
                 dir = BASE_DIR
+                print(BASE_DIR)
                 destination = open(os.path.join(dir, myFile.name),
                                    'wb+')
                 for chunk in myFile.chunks():
@@ -57,6 +58,7 @@ def getAllMetaModels(request):
 def getAllDatasets(request):
     all_datasets = []
     files = os.listdir(BASE_DIR)
+    print(files)
     for file in files:
         if file == "all_dataset_tag.pkl":
             continue

@@ -9,11 +9,11 @@ def get_preprocess(data):
     return 0
 
 
-def predict(origin_data, nums, peak_rate, years):
-    origin_data, cur_fit_input, origin_model_input, model_input, stat, message = get_model_input(origin_data,nums,peak_rate)
+def predict(origin_data, nums, peak_rate, years, cut_idx):
+    origin_data, cur_fit_input, origin_model_input, message = get_m_input(origin_data, cut_idx)
     if not message:
         return [],[], False
-    Nm_res, Tm_res, b_res = get_fit_res(origin_model_input, model_input, stat)
+    Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
 
     '''
     for i in range(0, len(b_res)):
@@ -22,8 +22,10 @@ def predict(origin_data, nums, peak_rate, years):
     '''
     res = []
     start = origin_data[0][0]
+    print(Tm_res)
+    print(origin_model_input[:,1])
     for i in range(0, len(cur_fit_input)):
-        T_pred = Tm_res[i]
+        T_pred = Tm_res[i]##origin_model_input[i][1]######
         b_pred = b_res[i]
         N_pred = Nm_res[i]
         interval_start = cur_fit_input[i][0][0]
@@ -47,7 +49,7 @@ def predict(origin_data, nums, peak_rate, years):
         fit_res = 2 * pred_N / (1 + np.cosh(pred_b * (i+start_year - pred_Tm)))
         temp.append(fit_res)
         res.append(temp)
-    return origin_data, res,True
+    return origin_data, res, True
     '''
     k = len(data)
     p = len(origin_input[1])
@@ -66,16 +68,16 @@ def predict(origin_data, nums, peak_rate, years):
     '''
 
 
-def fit(origin_data, nums, peak_rate):
+def fit(origin_data, nums, peak_rate, cut_idx):
     ## data: 经过处理以后的年份和产量列表
     #origin_input:未经过归一化处理
     # model_input: 灰度模型N,T,b输入,经过归一化处理
     #cur_fit_input:
     #stat: 将来用于归一化还原的统计量信息
-    origin_data, cur_fit_input, origin_input, model_input, stat, message = get_model_input(origin_data,nums, peak_rate)
+    origin_data, cur_fit_input, origin_input, message = get_m_input(origin_data, cut_idx)
     if not message:
         return [],[], False
-    Nm_res, Tm_res, b_res = get_fit_res(origin_input, model_input, stat)
+    Nm_res, Tm_res, b_res = get_fit_res(origin_input)
     '''
     for i in range(0, len(b_res)):
         b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
@@ -99,7 +101,7 @@ def fit(origin_data, nums, peak_rate):
     return origin_data, res,True
 
 
-def get_fit_res(origin_input, model_input, stat):
+def get_fit_res(origin_input):
     Tm_one = xlsx_reader.first_order_GM(origin_input[:, 1])
     bm_one = xlsx_reader.first_order_GM(origin_input[:, 2])
     Nm_one = xlsx_reader.first_order_GM(origin_input[:, 0])
@@ -121,24 +123,48 @@ def get_fit_res(origin_input, model_input, stat):
     return Nm_one, Tm_one, bm_one
 
 
-def get_model_input(data,nums,peak_rate):
-    pre = data_preprocess.preprocess(data)
-    data = []
-    length = len(pre['y'].values)
-    for i in range(0, length):
+def get_model_input(data, nums, peak_rate):
+    data = data_preprocess.preprocess(data)
+    data_after_preprocess = []
+    for i in range(0, len(data['y'].values)):
         l = []
-        l.append(pre['ds'].values[i])
-        l.append(pre['y'].values[i])
-        data.append(l)
-    idx = data_preprocess.get_max_index(data,nums, peak_rate)
-    res = data_preprocess.get_curve_fit_input(data, idx)
+        l.append(data['ds'].values[i])
+        l.append(data['y'].values[i])
+        data_after_preprocess.append(l)
+    idx = data_preprocess.get_max_index(data_after_preprocess, nums, peak_rate)
+    res = data_preprocess.get_curve_fit_input(data_after_preprocess, idx)
     if len(res) < 2:
-        return [],[],[],[],[],False
+        return [],[],[],False
     par = xlsx_reader.cur_fit(res)
     par = np.array(par)
     cp = copy.deepcopy(par)
-    model_input, stat = xlsx_reader.normalization(par)
-    return data, res, cp, model_input, stat, True
+    return data_after_preprocess, res, cp, True
+
+
+def get_m_input(data, cut_idx):
+    data = data_preprocess.preprocess(data)
+    data_after_preprocess = []
+    for i in range(0, len(data['y'].values)):
+        l = []
+        l.append(data['ds'].values[i])
+        l.append(data['y'].values[i])
+        data_after_preprocess.append(l)
+    cur_fit_input = []
+    pointer = 0
+    for i in range(0, len(cut_idx)):
+        start_year = cut_idx[i][0]
+        end_year = cut_idx[i][1]
+        cycle = []
+        for j in range(start_year, end_year + 1):
+            cycle.append(data_after_preprocess[pointer])
+            pointer += 1
+        cur_fit_input.append(cycle)
+    if len(cur_fit_input) < 2:
+        return [], [], [], False
+    cur_fit_res = xlsx_reader.cur_fit(cur_fit_input)
+    model_input = np.array(cur_fit_res)
+
+    return data_after_preprocess, cur_fit_input, model_input, True
 
 
 def parse(input):

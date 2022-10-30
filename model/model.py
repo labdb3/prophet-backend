@@ -76,17 +76,18 @@ class GMModel(MetaModel):
     ## nums: 峰点左右点的数目（取两边的最大值，默认为1）
     ## peak_rate: 峰点相比左右临近点最小的增长率（取最大值，默认为0.4）
     ## option: 保留选项，将来用作用户自行划定轮回区间使用
-    def __init__(self, nums=1, peak_rate=0.4, option=0):
+    def __init__(self, nums=1, peak_rate=0.4, option=0, cut_idx = None):
         super(MetaModel, self).__init__()
         self.nums = nums
         self.peak_rate = peak_rate
         self.option = option
+        self.cut_idx = cut_idx
 
     def fit(self, origin_data):
-        return util.fit(origin_data, nums=self.nums, peak_rate=self.peak_rate)
+        return util.fit(origin_data, nums=self.nums, peak_rate=self.peak_rate, cut_idx= self.cut_idx)
 
     def predict(self, origin_data, years):
-        return util.predict(origin_data, nums=self.nums, peak_rate=self.peak_rate, years=years)
+        return util.predict(origin_data, nums=self.nums, peak_rate=self.peak_rate, years=years, cut_idx= self.cut_idx)
 
 
 class wenshiModel(MetaModel):

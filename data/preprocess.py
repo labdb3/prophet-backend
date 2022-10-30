@@ -1,22 +1,22 @@
 import pandas as pd
 import copy
+import os
 from matplotlib import pyplot
 import xlsxwriter
 
+#BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
+BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
 
 def preprocess(data):
     i = 0
     while (i < (len(data['y'].values) - 2)):
-        #        print(i)
         if data['y'].values[i] == 0 or data['y'].values[i] == 1:
             temp = i
             while (data['y'].values[i + 1] == 0 or data['y'].values[i + 1] == 1):
                 i += 1
-            #            print(temp, i)
             if temp == i:
                 if i == 0:
                     data['y'].values[0] = 2 / 5 * data['y'].values[1]
-                    #                    print(data['y'].values[0])
                     data['y'].values[1] = 3 / 5 * data['y'].values[1]
                 elif i == len(data['y'].values) - 1:
                     data['y'].values[i] = 2 / 5 * data['y'].values[i - 1]
@@ -388,8 +388,8 @@ def slide_window(data,M,L,R):
     dm = m / 4
     if dm <= 1:
         dm = m
-    print("dm", dm)
-    print('n7', data1['y'].values[7])
+    ##print("dm", dm)
+    ##print('n7', data1['y'].values[7])
     for i in range(ll):
         if data1['y'].values[i] == 0.0:
             data1['y'].values[i] = dm
@@ -403,16 +403,6 @@ def slide_window(data,M,L,R):
         data1['y'].values[i - 1] += (data1['y'].values[i - 1] / s1) * s
         data1['y'].values[i] += (data1['y'].values[i] / s1) * s
         data1['y'].values[i + 1] += (data1['y'].values[i + 1] / s1) * s
- #   for j in range(1, len(data1) - 1):
- #       i = len(data1) - 1 - j
-  #      s0 = data1['y'].values[i - 1] + data1['y'].values[i] + data1['y'].values[i + 1]
- #       data1['y'].values[i] = (6 * data1['y'].values[i] + 0.85 * data1['y'].values[i - 1] + 1.15 * data1['y'].values[
- #           i + 1]) / 8
- #       s1 = data1['y'].values[i - 1] + data1['y'].values[i] + data1['y'].values[i + 1]
- #       s = s0 - s1
- #       data1['y'].values[i - 1] += (data1['y'].values[i - 1] / s1) * s
- #       data1['y'].values[i] += (data1['y'].values[i] / s1) * s
-  #      data1['y'].values[i + 1] += (data1['y'].values[i + 1] / s1) * s
 
     sum = 0
     for i in range(ll):
@@ -420,44 +410,9 @@ def slide_window(data,M,L,R):
     for i in range(ll):
         data1['y'].values[i] = data1['y'].values[i] - zb * (data1['y'].values[i] / sum)
     return data1
-#preprocess(data)
-#dataw=data
-#dataw=preprocess(dataw)
 
 
 
-# dataw = slide_window(data,6,0.85,1.15)
-#
-# print(data)
-# print(dataw)
-# #
-# workbook = xlsxwriter.Workbook('sheet1.xlsx')
-# worksheet = workbook.add_worksheet()
-# for i in range(len(dataw)):
-#     worksheet.write(i, 0, dataw['ds'].values[i])
-#     worksheet.write(i, 1, dataw['y'].values[i])
-# workbook.close()
-# print("dataw", dataw)
-# yw = dataw['y'].values
-# y0 = data['y'].values
-# y0 = copy.deepcopy(y0)
-# x1 = [i for i in range(len(data))]
-#
-# # print(y0)
-# pyplot.plot(x1, y0, label='INITIALLY')
-# # pyplot.plot(x1, y1, label='PREPROC1')
-# # pyplot.plot(x1, y2, label='WS=3')
-# pyplot.plot(x1, yw, label='W')
-# # pyplot.plot(x1, y3, label='WS=5')
-# pyplot.title("log_sample1 new")
-# pyplot.legend()
-# pyplot.show()
-# print('datasum', get_sum(data))
-# print('datawsum', get_sum(dataw))
-
-import os
-
-BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
 
 def getFileName(query):
     fileName = None

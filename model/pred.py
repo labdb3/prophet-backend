@@ -7,7 +7,8 @@ import model.myGM.data_preprocess as data_preprocess
 from .util import *
 import pickle
 
-BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
+BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
+##BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
 
 
 def getFileName(query):
@@ -86,7 +87,7 @@ def getResultWithParams_prophet(dataset,params):
                              params["seasonality_prior_scale"], "log",k=params["k"])
         k = model.fit(data[0],data[1])
     predict = model.predict(data[0][0], len(data[0]), params["years"])
-    return predict.to_numpy().tolist(),k
+    return predict.to_numpy().tolist(), k
 
 
 def getResultWithParams_wensi(dataset,params):
@@ -110,24 +111,25 @@ def getResultWithParams_wensi(dataset,params):
 ## origin_data: 文件名
 ## cur_fit_input: 峰值划定结果
 '''
- 举例 cur_fit_input = [
-[[1966,23.66],[1967, 35.99],[1968,86.22],[1969, 32.33]],
-[[1970, 26.67], [1971, 38.89], [1972, 89.27], [1973, 28.35]]
- ]
 '''
+cut_idx = [[1971, 1979], [1980, 1984], [1985, 1987], [1988, 1990], [1991, 1992],[1993, 1996] ,[1997, 1999], [2000, 2003],
+           [2004, 2006], [2007, 2010], [2011, 2014], [2015, 2017], [2018, 2020]]
 def getResultWithParams_GM(origin_data,params):
-    x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
+    x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'], cut_idx= cut_idx)
     # print("?????",origin_data)
     fileName, sheetName = getFileName(origin_data)
     data = pd.read_excel(os.path.join(BASE_DIR, fileName), sheet_name=sheetName, header=0, skiprows=0)
     try:
-        predict_data, predict_res, message = x.predict(data, params["years"])
-        if message:
-           return [item[1] for item in predict_res], None
-        else:
-            return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+       predict_data, predict_res, message = x.predict(data, params["years"])
+       if message:
+          return [item[1] for item in predict_res], None
+       else:
+          return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+
     except:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+       return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+
+
 ## 得到数据预处理的结果，方便前端进行数据分段
 ## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]
 def get_preprocess_res(dataset):
@@ -142,6 +144,16 @@ def get_preprocess_res(dataset):
         l.append(pre['y'].values[i])
         data.append(l)
     return data
+
+
+def get_sum_fitting(data):
+    '''
+
+    :param data: 累积曲线的列表  列表元素是[年份, 产量]
+    :return: actual 累积曲线的分段    fit  拟合曲线的分段
+    '''
+    return 0
+
 
 if __name__=='__main__':
     predict = getResultOfDataset_prophet("三个样本.xlsx")

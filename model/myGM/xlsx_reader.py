@@ -35,6 +35,7 @@ lines = [[[1986, 77.47], [1987, 110], [1988, 211.77], [1989, 172.1]],
 
 
 def first_order_GM(actual):
+    ##np.insert(actual,0, 0)
     sum_act = actual.cumsum(axis=0)
     Z = np.array(([-0.5 * (sum_act[k - 1] + sum_act[k]) for k in range(1, len(sum_act))])).reshape(len(sum_act) - 1, 1)
     one = np.ones((len(actual) - 1, 1))
@@ -49,7 +50,7 @@ def first_order_GM(actual):
     actual_res = np.zeros(len(actual)+1)
     actual_res[0] = sum_res[0]
     for i in range(1, len(actual_res)):
-        actual_res[i] = sum_res[i] - sum_res[i - 1]
+        actual_res[i] = sum_res[i] - sum_res[i-1]
     return actual_res
 
 
@@ -94,22 +95,14 @@ def cur_fit(lines):
         l.append(x)
         l.append(y)
         Nm, Tm = get_Nm_and_Tm(line)
-        N_ms.append(Nm)
-        T_ms.append(Tm)
         ##fig, ax = plt.subplots()
 
         def hubbert_function(x, b):
             return 2 * Nm / (1 + np.cosh(b * (x - Tm)))
 
         popt, pcov = curve_fit(hubbert_function, x, y)
-        ##ax.plot(x, y, 'b-')
-        ##ax.legend(r'$original\ values$')
         y2 = [hubbert_function(xx, popt[0], ) for xx in x]
-        ##ax.plot(x, y2, 'r--')
-        ##ax.legend(r'$polyfit\ values$')
-        b_s.append(popt[0])
         res.append([Nm, Tm, popt[0]])
-        ##plt.show()
 
     return res
 
@@ -155,8 +148,7 @@ def normalization(origin_list):
             origin_list[i][j] = (origin_list[i][j] - mean)/var
         parms.append(l)
     return origin_list, parms
-
-
+'''
 N_ms = [27087, 9196, 7569, 4451, 16476, 4656, 4858]
 T_ms = [1965, 1970, 1975, 1981, 1984, 1989, 1994]
 b_s = [3.0592149250599454, 3.3965766305346263, 1.7741362407262584, 1.7527531907723224, 1.371244308737967, 0.21909357713544134,0.8751651491068586]
@@ -174,6 +166,7 @@ b_relevant = par[:, (0, 1)]
 res = GM_predict(b_actual, b_relevant)
 for i in range(0, len(res)):
     res[i] = res[i]*stat[2][1] + stat[2][0]
+    '''
 
 ##draw(res, temp[:, 2])
 ##N_mean, N_var, N_l = normalization(N_ms)
