@@ -121,6 +121,7 @@ def partition_fitting(partition, deg):
 
 
 def save_plot(data_name, x, y, fit_y):
+    plt.figure()
     for i in range(0, len(x)):
         plt.plot(x[i], y[i])
         plt.plot(x[i], fit_y[i])
