@@ -47,7 +47,9 @@ def get_partition(input_sum, partition_num):
            partition_num: 划分段数
     :return:
     '''
+    global res_list
     res_list = []
+    global cur_list
     cur_list = []
     length = len(input_sum)
     print(length)
@@ -63,11 +65,7 @@ def get_partition(input_sum, partition_num):
         square_prefix_sum[i] = square_prefix_sum[i-1] + value_sum[i]* value_sum[i]
 
 
-    print("------")
-    print(res_list)
-    print(cur_list)
     res_list = dfs(cur_idx=0, cur_length=0, n=length - 1, m=partition_num)
-    print(res_list)
     min_diff = 1e11
     min_partition_plan = []
     for partition_plan in res_list:
@@ -115,6 +113,10 @@ def partition_fitting(partition, deg):
         p = np.poly1d(args)
         fitting_y_list.append([p(x_list[i][j]) for j in range(0, len(x_list[i]))])
     ##print(fitting_y_list)
+    print(x_list)
+    print(y_list)
+    print(fitting_y_list)
+    print("-----")
     return x_list, y_list, fitting_y_list
 
 
@@ -127,7 +129,7 @@ def save_plot(data_name, x, y, fit_y):
     return file_name
 
 
-
+'''
 data = pd.read_excel(os.path.join("D:\dblab3\prophet-backend\data\datasets", "三个样本.xlsx"), sheet_name="样本3", header=0,skiprows=0)
 data = data_preprocess.preprocess(data)
 data.columns = ['ds', 'y']
@@ -148,6 +150,7 @@ for i in range(0, len(x)):
     plt.plot(x[i], y[i])
     plt.plot(x[i], fit_y[i])
 plt.show()
+'''
 
 
 
