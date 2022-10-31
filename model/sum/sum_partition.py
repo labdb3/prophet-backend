@@ -120,27 +120,28 @@ def save_plot(data_name, x, y, fit_y):
     return file_name
 
 
-'''
-data = pd.read_excel(os.path.join(BASE_DIR, "三个样本.xlsx"), sheet_name="样本1", header=0,skiprows=0)
+
+data = pd.read_excel(os.path.join("D:\dblab3\prophet-backend\data\datasets", "三个样本.xlsx"), sheet_name="样本3", header=0,skiprows=0)
 data = data_preprocess.preprocess(data)
-data = []
-length = len(data['y'].values)
+data.columns = ['ds', 'y']
+data_1 = []
+length = len(data['ds'].values)
 for i in range(0, length):
     l = []
     l.append(data['ds'].values[i])
     l.append(data['y'].values[i])
-    data.append(l)
+    data_1.append(l)
 
-for i in range(1, len(data)):
-    data[i][1] += data[i-1][1]
+for i in range(1, len(data_1)):
+    data_1[i][1] += data_1[i-1][1]
 
-res = get_partition(data, 4)
+res = get_partition(data_1, 4)
 x, y, fit_y = partition_fitting(res, 3)
 for i in range(0, len(x)):
     plt.plot(x[i], y[i])
     plt.plot(x[i], fit_y[i])
 plt.show()
-'''
+
 
 
 
