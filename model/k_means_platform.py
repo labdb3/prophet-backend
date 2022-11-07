@@ -16,7 +16,7 @@ def k_means(sheet_name:list, data:list):
     km = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw")
     labels = km.fit_predict(X)
     plt.figure(figsize=(8, 8), dpi=80)
-    plt.figure(1)
+    #plt.figure(1)
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(222)
     ax3 = plt.subplot(223)

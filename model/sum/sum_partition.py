@@ -138,10 +138,30 @@ def save_plot(data_name, x, y, fit_y):
     for i in range(0, len(x)):
         plt.plot(x[i], y[i], ls='-', color='r', label='actual')
         plt.plot(x[i], fit_y[i], ls='--', color ='b',label='fitting')
-        plt.legend(['actual', 'fitting'])
-    file_name = data_name +"_sum_fitting.jpeg"
-    plt.savefig(file_name)
-    return file_name
+        plt.legend(['actual_sum', 'fitting_sum'])
+    sum_file_name = data_name +"_sum_fitting.jpeg"
+    plt.savefig(sum_file_name)
+    plt.figure()
+    sum_y = []
+    sum_fit_y = []
+    sum_x = []
+    actual_y = []
+    actual_fit_y = []
+    for i in range(0, len(x)):
+        for j in range(0, len(x[i])):
+            sum_x.append(x[i][j])
+            sum_y.append(y[i][j])
+            sum_fit_y.append(fit_y[i][j])
+    actual_y.append(sum_y[0])
+    actual_fit_y.append(sum_fit_y[0])
+    for i in range(1, len(sum_x)):
+        actual_y.append(sum_y[i] - sum_y[i-1])
+        actual_fit_y.append(sum_fit_y[i] - sum_fit_y[i-1])
+    plt.plot(sum_x, actual_y, ls='-', color='r', label='actual')
+    plt.plot(sum_x, actual_fit_y, ls='--', color='b', label='fitting')
+    plt.legend(['actual', 'fitting'])
+    plt.savefig(data_name+ '_actual_fitting.jpeg')
+    return sum_file_name
 
 
 '''
