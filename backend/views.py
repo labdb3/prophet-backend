@@ -217,9 +217,12 @@ def getResultWithParams(request):
             obj["loss"] = get_loss(obj["dataset_yAxis"], obj["翁氏模型"])
         elif model=="灰度预测":
             obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
-            obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
+            print(obj["灰度预测"])
+            print(obj["dataset_yAxis"])
             if msg != None:
                 obj["msg"] = msg
+            else:
+                obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
 
         print("obj",obj)
         return JsonResponse(

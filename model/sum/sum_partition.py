@@ -6,6 +6,7 @@ import os
 from model.pred import BASE_DIR
 import matplotlib
 import matplotlib.pyplot as plt
+import warnings
 # matplotlib.rcParams['font.sans-serif'] = ['Simsun']
 # matplotlib.rcParams['font.size'] = 11
 
@@ -100,6 +101,7 @@ def get_partition(input_sum, partition_num):
 
 
 def partition_fitting(partition, deg):
+    max_deg = 8
     x_list = []
     y_list = []
     for p in partition:
@@ -109,6 +111,16 @@ def partition_fitting(partition, deg):
     ##print(y_list)
     fitting_y_list = []
     for i in range(0, len(x_list)):
+        deg = 1
+        for deg in range(1, max_deg + 1):
+            with warnings.catch_warnings():
+                warnings.filterwarnings('error')
+                try:
+                    args = np.polyfit(x_list[i], y_list[i], deg=deg)
+                except np.RankWarning:
+                    break
+        deg -= 1
+        print(deg)
         args = np.polyfit(x_list[i], y_list[i], deg=deg)
         p = np.poly1d(args)
         fitting_y_list.append([p(x_list[i][j]) for j in range(0, len(x_list[i]))])
@@ -117,14 +129,16 @@ def partition_fitting(partition, deg):
     print(y_list)
     print(fitting_y_list)
     print("-----")
+
     return x_list, y_list, fitting_y_list
 
 
 def save_plot(data_name, x, y, fit_y):
     plt.figure()
     for i in range(0, len(x)):
-        plt.plot(x[i], y[i])
-        plt.plot(x[i], fit_y[i])
+        plt.plot(x[i], y[i], ls='-', color='r', label='actual')
+        plt.plot(x[i], fit_y[i], ls='--', color ='b',label='fitting')
+        plt.legend(['actual', 'fitting'])
     file_name = data_name +"_sum_fitting.jpeg"
     plt.savefig(file_name)
     return file_name

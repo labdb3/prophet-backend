@@ -87,6 +87,12 @@ def getResultWithParams_GM(origin_data,params):
     x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
     fileName, sheetName = getFileName(origin_data)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+    predict_data, predict_res, message = x.predict(data, params["years"])
+    if message:
+        return [item[1] for item in predict_res], None
+    else:
+        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+    '''
     try:
         predict_data, predict_res, message = x.predict(data, params["years"])
         if message:
@@ -95,6 +101,7 @@ def getResultWithParams_GM(origin_data,params):
             return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
     except:
         return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+    '''
 
 ## 得到数据预处理的结果，方便前端进行数据分段
 ## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]

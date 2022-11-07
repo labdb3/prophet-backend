@@ -21,14 +21,14 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
         Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
     '''
     res = []
-    start = origin_data[0][0]
+    start = int(origin_data[0][0])
     for i in range(0, len(cur_fit_input)):
         T_pred = Tm_res[i]##origin_model_input[i][1]######
         b_pred = b_res[i]
         N_pred = Nm_res[i]
-        interval_start = cur_fit_input[i][0][0]
+        interval_start = int(cur_fit_input[i][0][0])
         k = len(cur_fit_input[i])
-        interval_end = cur_fit_input[i][k-1][0]
+        interval_end = int(cur_fit_input[i][k-1][0])
         for j in range(interval_start, interval_end+1):
             temp = []
             temp.append(j)
