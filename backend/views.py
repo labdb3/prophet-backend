@@ -412,17 +412,28 @@ def showClustering(request):
 @csrf_exempt
 def getSumFitting(request):
     dataset = request.GET.get("dataset", '')
-    fig = get_sum_fitting(dataset,None)
-    print(fig)
-    img_file = Image.open(fig)
+    sum_file_name, actual_file_name = get_sum_fitting(dataset,None)
+
+    img_file = Image.open("static/demo_actual.jpeg")
     # 将图片保存到内存中
     f = BytesIO()
     img_file.save(f, 'jpeg')
     # 从内存中取出bytes类型的图片
-    data = f.getvalue()
+    data1 = f.getvalue()
     # 将bytes转成base64
-    data = base64.b64encode(data).decode()
+    data1 = base64.b64encode(data1).decode()
 
+    img_file = Image.open("static/demo_sum.jpeg")
+    # 将图片保存到内存中
+    f = BytesIO()
+    img_file.save(f, 'jpeg')
+    # 从内存中取出bytes类型的图片
+    data2 = f.getvalue()
+    # 将bytes转成base64
+    data2 = base64.b64encode(data2).decode()
 
-    return JsonResponse(data, safe=False)
+    return JsonResponse({
+        "sum":data2,
+        "actual":data1,
+    }, safe=False)
 

@@ -139,7 +139,7 @@ def save_plot(data_name, x, y, fit_y):
         plt.plot(x[i], y[i], ls='-', color='r', label='actual')
         plt.plot(x[i], fit_y[i], ls='--', color ='b',label='fitting')
         plt.legend(['actual_sum', 'fitting_sum'])
-    sum_file_name = "demo_sum.jpeg"
+    sum_file_name = "static/demo_sum.jpeg"
     plt.savefig(sum_file_name)
     plt.figure()
     sum_y = []
@@ -160,7 +160,7 @@ def save_plot(data_name, x, y, fit_y):
     plt.plot(sum_x, actual_y, ls='-', color='r', label='actual')
     plt.plot(sum_x, actual_fit_y, ls='--', color='b', label='fitting')
     plt.legend(['actual', 'fitting'])
-    actual_file_name = "demo_actual.jpeg"
+    actual_file_name = "static/demo_actual.jpeg"
     plt.savefig(actual_file_name)
     return sum_file_name, actual_file_name
 
