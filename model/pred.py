@@ -144,7 +144,7 @@ def get_sum_fitting(dataset, params):
     sum = sum_partition.get_sum(pre)
     partition = sum_partition.get_partition(input_sum=sum, partition_num=params['partition_num'])
     x_list, y_list, fitting_y_list = sum_partition.partition_fitting(partition, deg=params['degree'])
-    jpg_name = sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
-    return jpg_name
+    sum_name, actual_name = sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
+    return sum_name, actual_name
 
 
