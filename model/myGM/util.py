@@ -12,6 +12,53 @@ def get_preprocess(data):
 def predict(origin_data, nums, peak_rate, years, cut_idx = []):
     origin_data, cur_fit_input, origin_model_input, message = get_model_input(origin_data, nums, peak_rate)
     if not message:
+        return[],[],False
+    k = len(origin_data)
+    Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
+    start = int(origin_data[0][0])
+    res = []
+    actual_last_year = int(origin_data[k-1][0])
+    pred_last_year = int(origin_data[k-1][0]) + years
+    for i in range(0, len(cur_fit_input)):
+        T_pred = Tm_res[i]##origin_model_input[i][1]######
+        b_pred = b_res[i]
+        N_pred = Nm_res[i]
+        interval_start = int(cur_fit_input[i][0][0])
+        k = len(cur_fit_input[i])
+        interval_end = int(cur_fit_input[i][k-1][0])
+        for j in range(interval_start, interval_end+1):
+            temp = []
+            temp.append(j)
+            fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
+            temp.append(fit_res)
+            res.append(temp)
+
+
+    while True:
+        last_Tm = Tm_res[len(Tm_res) - 1]
+        last_Nm = Nm_res[len(Nm_res) - 1]
+        last_b = b_res[len(b_res) - 1]
+        last =(int)(actual_last_year + (last_Tm - actual_last_year) *2)
+        for i in range(actual_last_year + 1, min(last + 1, pred_last_year + 1)):
+            temp = []
+            temp.append(i)
+            fit_res = 2*last_Nm/(1+np.cosh(last_b*(i - last_Tm)))
+            temp.append(fit_res)
+            res.append(temp)
+        if last >= pred_last_year:
+            break
+        else:
+            actual_last_year = last + 1
+            origin_model_input = origin_model_input[1:, :]
+            new_model_input = np.array([last_Nm, last_Tm, last_b])
+            origin_model_input = np.row_stack((origin_model_input,new_model_input))
+            Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
+    return origin_data, res, True
+
+
+def pred(origin_data, nums, peak_rate, years, cut_idx = []):
+    origin_data, cur_fit_input, origin_model_input, message = get_model_input(origin_data, nums, peak_rate)
+    if not message:
         return [],[], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
 

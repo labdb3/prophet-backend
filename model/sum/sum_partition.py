@@ -162,7 +162,7 @@ def save_plot(data_name, x, y, fit_y):
     plt.legend(['actual', 'fitting'])
     actual_file_name = "demo_actual.jpeg"
     plt.savefig(actual_file_name)
-    return sum_file_name,actual_file_name
+    return sum_file_name, actual_file_name
 
 
 '''
