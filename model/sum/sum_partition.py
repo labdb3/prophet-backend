@@ -139,7 +139,7 @@ def save_plot(data_name, x, y, fit_y):
         plt.plot(x[i], y[i], ls='-', color='r', label='actual')
         plt.plot(x[i], fit_y[i], ls='--', color ='b',label='fitting')
         plt.legend(['actual_sum', 'fitting_sum'])
-    sum_file_name = data_name +"_sum_fitting.jpeg"
+    sum_file_name = "demo_sum.jpeg"
     plt.savefig(sum_file_name)
     plt.figure()
     sum_y = []
@@ -160,8 +160,9 @@ def save_plot(data_name, x, y, fit_y):
     plt.plot(sum_x, actual_y, ls='-', color='r', label='actual')
     plt.plot(sum_x, actual_fit_y, ls='--', color='b', label='fitting')
     plt.legend(['actual', 'fitting'])
-    plt.savefig(data_name+ '_actual_fitting.jpeg')
-    return sum_file_name
+    actual_file_name = "demo_actual.jpeg"
+    plt.savefig(actual_file_name)
+    return sum_file_name,actual_file_name
 
 
 '''
@@ -185,8 +186,28 @@ for i in range(0, len(x)):
     plt.plot(x[i], y[i])
     plt.plot(x[i], fit_y[i])
 plt.show()
-'''
 
+represent = [[394, 558, 660, 471, 575, 574, 2894, 1919, 1616, 1931, 2957, 7337, 3436, 2843, 3393, 4639, 4750, 3967, 4112, 4032, 1879, 1163, 2488, 1072, 1269, 1659, 2367, 2634, 3318, 3441, 3234, 3481, 3518, 576, 175, 223, 321, 226, 226, 189, 122, 205, 203, 166, 233, 300, 233, 166],
+             [950, 1225, 9180, 2103, 1800, 3063, 2757, 4335, 4803, 1492, 1383, 5168, 5099, 3570, 3738, 2117, 2529, 4078,
+              5883, 5171, 9164, 16989, 8596, 8309, 4743, 4473, 4466, 4102, 3752, 3945, 4269, 5164, 5089, 4249, 6172,
+              4852, 7333, 6595, 7128, 7378, 8351, 12454, 7215, 5650, 8232, 9754, 9326, 7988, 8596, 8640, 6813, 5231,
+              6194, 5429, 7100, 7260, 7157, 7049, 5333, 6666, 6666, 6666, 6666],
+             [157, 216, 235, 314, 640, 453, 535, 1727, 4464, 766, 880, 721, 519, 546, 381, 782, 892, 1635, 1766, 2301,
+              1662, 1587, 1848, 1296, 3190, 1951, 2551, 1516, 1056, 860, 506, 532, 1291, 1200, 732, 846, 750, 666, 500,
+              500, 500],
+[1426, 10069, 11077, 4076, 2458, 4010, 4496, 3496, 2890, 1733, 3007, 7491, 5136, 1661, 584, 1464, 2713, 3161, 3034, 5301, 9609, 17881, 11244, 8823, 5907, 5391, 6246, 5442, 4912, 4819, 5575, 5578, 5660, 5517, 7226, 5623, 5765, 5426, 6129, 9017, 6408, 5883, 4830, 6043, 6063, 5842, 5727, 7053, 5185, 4091, 1563, 981, 621, 709, 1555, 1129, 1519, 1501, 1600, 1433, 1366, 1200, 1233]
+]
+
+for i in range(0, len(represent)):
+    sum_input = []
+    prev = 0
+    for j in range(0, len(represent[i])):
+        sum_input.append([j, represent[i][j]+prev])
+        prev = represent[i][j] + prev
+    sum_partition = get_partition(sum_input, 5)
+    x, y, fitting_y = partition_fitting(sum_partition, 3)
+    save_plot(str(i), x, y, fitting_y)
+'''
 
 
 
