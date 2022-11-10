@@ -101,7 +101,7 @@ def get_partition(input_sum, partition_num):
 
 
 def partition_fitting(partition, deg):
-    max_deg = 8
+    max_deg = 4
     x_list = []
     y_list = []
     for p in partition:

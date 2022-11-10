@@ -49,11 +49,10 @@ def getResultWithParams_prophet(dataset,params):
 
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
-        model = prophetModel(params["n_changepoints"],params["changepoint_prior_scale"],params["seasonality_prior_scale"],"log")
+        model = prophetModel()
         k = model.fit(data[0], data[1])
     else:
-        model = prophetModel(params["n_changepoints"], params["changepoint_prior_scale"],
-                             params["seasonality_prior_scale"], "log",k=params["k"])
+        model = prophetModel(k=params["k"])
         k = model.fit(data[0],data[1])
     predict = model.predict(data[0][0], len(data[0]), params["years"])
     return predict.to_numpy().tolist(),k

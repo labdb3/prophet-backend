@@ -22,7 +22,7 @@ class MetaModel:
 
 # prophet(n_changepoints:突变性,changepoint_prior_scale:趋势性,seasonality_prior_scale:周期性，data_prepare:数据预处理方式)
 class prophetModel(MetaModel):
-    def __init__(self,n_changepoints=1000,changepoint_prior_scale=5000,seasonality_prior_scale=2000,data_prepare="log",k=0):
+    def __init__(self,n_changepoints=10,changepoint_prior_scale=50,seasonality_prior_scale=20,data_prepare="log",k=0):
         super(MetaModel, self).__init__()
         self.n_changepoints = n_changepoints
         self.changepoint_prior_scale = changepoint_prior_scale
