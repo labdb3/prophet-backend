@@ -168,12 +168,15 @@ def save_plot(data_name, x, y, fit_y):
 
 
 def f(A, n):
-    if A[0] == 1:
-        Fx = 'x^{}'.format(n)
-    elif A[0] == -1:
-        Fx = '-x^{}'.format(n)
+    if n >= 2:
+        if A[0] == 1:
+            Fx = 'x^{}'.format(n)
+        elif A[0] == -1:
+            Fx = '-x^{}'.format(n)
+        else:
+            Fx = '{}x^{}'.format(A[0], n)
     else:
-        Fx = '{}x^{}'.format(A[0], n)
+        Fx = '{}x'.format(A[0])
     for i in range(1, n - 1):
         if A[i] > 0 and A[i] != 1:
             Fx = Fx + '+{}x^{}'.format(A[i], n - i)
@@ -184,14 +187,15 @@ def f(A, n):
         elif A[i] == -1:
             Fx = Fx + '-x^{}'.format(n - i)
 
-    if A[-2] > 0 and A[-2] != 1:
-        Fx = Fx + '+{}x'.format(A[-2])
-    elif A[-2] == 1:
-        Fx = Fx + '+x'
-    elif A[-2] < 0 and A[-2] != -1:
-        Fx = Fx + '{}x'.format(A[-2])
-    elif A[-2] == -1:
-        Fx = Fx + '-x'
+    if n >= 2:
+       if A[-2] > 0 and A[-2] != 1:
+           Fx = Fx + '+{}x'.format(A[-2])
+       elif A[-2] == 1:
+           Fx = Fx + '+x'
+       elif A[-2] < 0 and A[-2] != -1:
+           Fx = Fx + '{}x'.format(A[-2])
+       elif A[-2] == -1:
+           Fx = Fx + '-x'
 
     if A[-1] > 0:
         Fx = Fx + '+{}'.format(A[-1])
