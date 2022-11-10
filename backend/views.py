@@ -65,9 +65,9 @@ def deleteDataSet(request):
     all_data = LoadDataBase()
     if sheetName in all_data[fileName].keys():
         del all_data[fileName][sheetName]
-
+    if len(all_data[fileName].keys())==0:
+        del all_data[fileName]
     DumpDataBase(all_data)
-
     return JsonResponse({},safe=False)
 
 
