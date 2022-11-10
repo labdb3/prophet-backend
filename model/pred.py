@@ -143,10 +143,13 @@ def get_sum_fitting(dataset, params):
     pre = data_preprocess.preprocess(data)
     sum = sum_partition.get_sum(pre)
     partition = sum_partition.get_partition(input_sum=sum, partition_num=params['partition_num'])
-    x_list, y_list, fitting_y_list = sum_partition.partition_fitting(partition, deg=params['degree'])
-
+    x_list, y_list, fitting_y_list, args_list = sum_partition.partition_fitting(partition, deg=params['degree'])
+    poly_list = []
+    for args in args_list:
+        poly = sum_partition.f(args, len(args) - 1)
+        poly_list.append(poly)
     sum_file_name, actual_file_name= sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
-    return sum_file_name, actual_file_name
+    return sum_file_name, actual_file_name, poly_list
 
 
 

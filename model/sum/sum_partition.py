@@ -42,6 +42,7 @@ def dfs(cur_idx, cur_length, n, m):
 
 
 def get_partition(input_sum, partition_num):
+    partition_num = 4
     '''
 
     :param input_sum: 累积曲线列表
@@ -110,6 +111,7 @@ def partition_fitting(partition, deg):
     ##print(x_list)
     ##print(y_list)
     fitting_y_list = []
+    args_list = []
     for i in range(0, len(x_list)):
         deg = 1
         for deg in range(1, max_deg + 1):
@@ -122,15 +124,15 @@ def partition_fitting(partition, deg):
         deg -= 1
         print(deg)
         args = np.polyfit(x_list[i], y_list[i], deg=deg)
+        args_list.append(args)
         p = np.poly1d(args)
         fitting_y_list.append([p(x_list[i][j]) for j in range(0, len(x_list[i]))])
     ##print(fitting_y_list)
     print(x_list)
     print(y_list)
     print(fitting_y_list)
-    print("-----")
-
-    return x_list, y_list, fitting_y_list
+    print(fitting_y_list[0])
+    return x_list, y_list, fitting_y_list, args_list
 
 
 def save_plot(data_name, x, y, fit_y):
@@ -163,6 +165,40 @@ def save_plot(data_name, x, y, fit_y):
     actual_file_name = "static/demo_actual.jpeg"
     plt.savefig(actual_file_name)
     return sum_file_name, actual_file_name
+
+
+def f(A, n):
+    if A[0] == 1:
+        Fx = 'x^{}'.format(n)
+    elif A[0] == -1:
+        Fx = '-x^{}'.format(n)
+    else:
+        Fx = '{}x^{}'.format(A[0], n)
+    for i in range(1, n - 1):
+        if A[i] > 0 and A[i] != 1:
+            Fx = Fx + '+{}x^{}'.format(A[i], n - i)
+        elif A[i] == 1:
+            Fx = Fx + '+x^{}'.format(n - i)
+        elif A[i] < 0 and A[i] != -1:
+            Fx = Fx + '{}x^{}'.format(A[i], n - i)
+        elif A[i] == -1:
+            Fx = Fx + '-x^{}'.format(n - i)
+
+    if A[-2] > 0 and A[-2] != 1:
+        Fx = Fx + '+{}x'.format(A[-2])
+    elif A[-2] == 1:
+        Fx = Fx + '+x'
+    elif A[-2] < 0 and A[-2] != -1:
+        Fx = Fx + '{}x'.format(A[-2])
+    elif A[-2] == -1:
+        Fx = Fx + '-x'
+
+    if A[-1] > 0:
+        Fx = Fx + '+{}'.format(A[-1])
+    elif A[-1] < 0:
+        Fx = Fx + '{}'.format(A[-1])
+
+    return Fx
 
 
 '''

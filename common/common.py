@@ -15,8 +15,8 @@ import pandas as pd
     }
 """
 
-DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
-#DATABASE_PATH = "D:\dblab3\prophet-backend\data"
+#DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
+DATABASE_PATH = "D:\dblab3\prophet-backend\data"
 
 def getFileName(query):
     fileName = query.split("_")[0]
