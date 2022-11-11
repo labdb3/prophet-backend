@@ -172,6 +172,8 @@ for i in font_list:
 #     plt.savefig("static/clustering.jpeg")
 #
 def k_means(sheet_name:list, data:list):
+    print("------")
+    print(sheet_name,data)
     X = to_time_series_dataset(data)
     # 数据标准化
     X = TimeSeriesScalerMeanVariance(mu=0.0, std=1.0).fit_transform(X)

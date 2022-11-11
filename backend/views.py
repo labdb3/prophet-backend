@@ -148,35 +148,35 @@ def saveDataset(request):
 
     return JsonResponse(name,safe=False)
 
-@csrf_exempt
-def getResultOfModel(request):
-    if request.method=='POST':
-        data = json.loads(request.body.decode('utf-8'))
-        models = data.get('models')
-        dataset_name = data.get('dataset')
-        print("models:",models)
-        print("dataset:",dataset_name)
-
-
-        data =  GetData(dataset_name)
-
-        obj = {
-            "dataset_xAxis":data[0],
-            "dataset_yAxis":data[1]
-        }
-        for model in models:
-            if model=="prophet":
-                obj["prophet"] = getResultOfDataset_prophet(dataset_name)
-            elif model=="翁氏模型":
-                obj["翁氏模型"] = getResultOfDataset_wensi(dataset_name)
-            elif model=="灰度预测":
-                obj["灰度预测"] = getResultOfDataset_GM(dataset_name)
-
-
-        print(obj)
-        return JsonResponse(
-            obj,safe=False
-        )
+# @csrf_exempt
+# def getResultOfModel(request):
+#     if request.method=='POST':
+#         data = json.loads(request.body.decode('utf-8'))
+#         models = data.get('models')
+#         dataset_name = data.get('dataset')
+#         print("models:",models)
+#         print("dataset:",dataset_name)
+#
+#
+#         data =  GetData(dataset_name)
+#
+#         obj = {
+#             "dataset_xAxis":data[0],
+#             "dataset_yAxis":data[1]
+#         }
+#         for model in models:
+#             if model=="prophet":
+#                 obj["prophet"] = getResultOfDataset_prophet(dataset_name)
+#             elif model=="翁氏模型":
+#                 obj["翁氏模型"] = getResultOfDataset_wensi(dataset_name)
+#             elif model=="灰度预测":
+#                 obj["灰度预测"] = getResultOfDataset_GM(dataset_name)
+#
+#
+#         print(obj)
+#         return JsonResponse(
+#             obj,safe=False
+#         )
 
 
 @csrf_exempt
@@ -207,10 +207,13 @@ def getResultWithParams(request):
             return sum/len(a)
 
         if model=="prophet":
-            obj["prophet"],obj["k"] = getResultWithParams_prophet(dataset,params)
+            obj["prophet"],obj["k"],n_changepoints,changepoint_prior_scale,seasonality_prior_scale = getResultWithParams_prophet(dataset,params)
             print(obj["k"],type(obj["k"]))
             obj["k"] = float(obj["k"])
             obj["loss"] = get_loss(obj["dataset_yAxis"],obj["prophet"])
+            obj["n_changepoints"] = n_changepoints
+            obj["changepoint_prior_scale"] = changepoint_prior_scale
+            obj["seasonality_prior_scale"] = seasonality_prior_scale
 
         elif model=="翁氏模型":
             obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
@@ -357,7 +360,7 @@ def loadModel(request):
     res["years"] = years
 
     if model=="prophet":
-        obj["prophet"],obj["k"] = getResultWithParams_prophet(res["dataset"],res)
+        obj["prophet"],obj["k"],_,__,___ = loadModel_prophet(res["dataset"],res)
         obj["k"] = float(obj["k"])
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)

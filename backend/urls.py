@@ -10,7 +10,7 @@ urlpatterns = [
 
     # 模型对比与预测
     path("getAllMetaModels", views.getAllMetaModels),
-    path("getResultOfModel", views.getResultOfModel),
+    #path("getResultOfModel", views.getResultOfModel),
     path("loadModel_multi",views.loadModel_multi),
 
     # 数据预处理

@@ -3,6 +3,7 @@ import pandas as pd
 data = pd.read_excel("./数据单元.xlsx", sheet_name='3',header=0,skiprows=0)
 
 def preprocess(data):
+    data = pd.DataFrame(np.array(data).reshape((-1, 1)))
     data.columns = ['y']
     i = 0
     while (i<(len(data['y'].values)-2)):
@@ -47,7 +48,7 @@ def preprocess(data):
                         for j in range(temp,i+2):
                             data['y'].values[j]= data['y'].values[temp - 1]+(j-temp+1)*(data['y'].values[i+1]-data['y'].values[temp-1])/3/(i-temp+2)
         i += 1
-    return data
+    return data.to_numpy().transpose().tolist()
 
 from common.common import *
 import pandas as pd

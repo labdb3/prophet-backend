@@ -10,39 +10,53 @@ import json
 from common.common import *
 import model.sum.sum_partition as sum_partition
 from model.sum.sum_partition import res_list, cur_list
+from data.preprocess_util import preprocess
 
-
-# 默认参数的模型
-def getResultOfDataset_prophet(dataset):
-    data = GetData(dataset)
-    model = prophetModel()
-    model.fit(data[0], data[1])
-    predict = model.predict(data[0][0], len(data[0]), 0)
-    return predict.to_numpy().tolist()
-
-
-def getResultOfDataset_wensi(dataset):
-    data = GetData(dataset)
-    model = wenshiModel()
-    tmp_x = list(range(1, len(data[0]) + 1))
-    tmp_y = data[1]
-    model.fit(tmp_x,tmp_y)
-    pred_y = model.predict(len(data[0]))
-    return pred_y
-
-
-def getResultOfDataset_GM(dataset):
-    x = GMModel()
-    fileName, sheetName = getFileName(dataset)
-    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
-    predict_data, predict_res, message = x.predict(data, 5)
-    if message:
-       return [item[1] for item in predict_res],None
-    else:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
-
+# # 默认参数的模型
+# def getResultOfDataset_prophet(dataset):
+#     data = GetData(dataset)
+#     model = prophetModel()
+#     model.fit(data[0], data[1])
+#     predict = model.predict(data[0][0], len(data[0]), 0)
+#     return predict.to_numpy().tolist()
+#
+#
+# def getResultOfDataset_wensi(dataset):
+#     data = GetData(dataset)
+#     model = wenshiModel()
+#     tmp_x = list(range(1, len(data[0]) + 1))
+#     tmp_y = data[1]
+#     model.fit(tmp_x,tmp_y)
+#     pred_y = model.predict(len(data[0]))
+#     return pred_y
+#
+#
+# def getResultOfDataset_GM(dataset):
+#     x = GMModel()
+#     fileName, sheetName = getFileName(dataset)
+#     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+#     predict_data, predict_res, message = x.predict(data, 5)
+#     if message:
+#        return [item[1] for item in predict_res],None
+#     else:
+#         return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+#
 
 # 自定义参数的模型
+
+def loadModel_prophet(dataset,params):
+    data = GetData(dataset)
+
+    # print("params",params)
+    if params["k"]==0 or params["k"]==None:
+        model = prophetModel(n_changepoints=params["n_changepoints"],changepoint_prior_scale=params["changepoint_prior_scale"],seasonality_prior_scale=params["seasonality_prior_scale"],refind=False)
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
+    else:
+        model = prophetModel(k=params["k"])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
+    predict = model.predict(data[0][0], len(data[0]), params["years"])
+    return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
+
 
 def getResultWithParams_prophet(dataset,params):
     data = GetData(dataset)
@@ -50,12 +64,12 @@ def getResultWithParams_prophet(dataset,params):
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel()
-        k = model.fit(data[0], data[1])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
     else:
         model = prophetModel(k=params["k"])
-        k = model.fit(data[0],data[1])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
-    return predict.to_numpy().tolist(),k
+    return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
 
 def getResultWithParams_wensi(dataset,params):
