@@ -104,7 +104,7 @@ def getResultWithParams_GM(origin_data,params):
     if message:
         return [item[1] for item in predict_res], None
     else:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+        return [],"当前所选参数无法拟合或者当前数据集不适合灰度模型"
     '''
 
     try:
@@ -112,9 +112,9 @@ def getResultWithParams_GM(origin_data,params):
         if message:
            return [item[1] for item in predict_res], None
         else:
-            return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+            return [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
     except:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+        return [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
 
 
 ## 得到数据预处理的结果，方便前端进行数据分段
