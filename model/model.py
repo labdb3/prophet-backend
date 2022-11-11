@@ -76,9 +76,9 @@ class prophetModel(MetaModel):
         min_y_pred = []
         min_niheError = 10000
 
-        n_changepoints = [0.1,0.2] #[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        n_changepoints = [0.1, 0.2, 0.3, 0.4, 0.5]
         changepoint_prior_scale = [1, 2, 3, 4, 5]
-        seasonality_prior_scale = [1]#[1, 2, 3, 4, 5]
+        seasonality_prior_scale = [1, 2, 3, 4, 5]#[1, 2, 3, 4, 5]
         for n_changepoints_parm in n_changepoints:
             for changepoint_prior_scale_parm in changepoint_prior_scale:
                 for seasonality_prior_scale_parm in seasonality_prior_scale:
