@@ -14,7 +14,7 @@ import pandas as pd
         }
     }
 """
-
+URL = "http://127.0.0.1:8000/"
 DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
 #DATABASE_PATH = "D:\dblab3\prophet-backend\data"
 
