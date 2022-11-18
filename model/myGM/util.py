@@ -80,7 +80,7 @@ def fit(origin_data, nums, peak_rate, cut_idx = []):
         k = len(cur_fit_input[i])
         interval_end = int(cur_fit_input[i][k-1][0])
         if i%2 == 0:
-            curr_dict = dict(gt=interval_start-start-1, lte=interval_end-start, color ='green')
+            curr_dict = dict(gt=interval_start-start-1, lte=interval_end-start, color ='blue')
         else:
             curr_dict = dict(gt=interval_start - start - 1, lte=interval_end - start, color='red')
         cut_dict.append(curr_dict)
