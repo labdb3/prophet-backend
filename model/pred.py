@@ -139,14 +139,16 @@ def get_fit_GM(origin_data, params):
     fileName, sheetName = getFileName(origin_data)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
 
-    try:
-        origin_data, res, Nm_l, tm_l, b_l, cut_dict, message = x.fit(data, params)
-        if not message:
-            return [], [],[], [], [], [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
-        else:
-            return origin_data, res, Nm_l, tm_l, b_l, cut_dict, None
+    #try:
+    origin_data, res, Nm_l, tm_l, b_l, cut_dict, message = x.fit(data)
+    if not message:
+        return [], [],[], [], [], [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+    else:
+        return origin_data, res, Nm_l, tm_l, b_l, cut_dict, None
+    '''
     except:
         return [], [],[], [], [], [],  "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+    '''
 
 
 def get_sum_fitting(dataset, params):

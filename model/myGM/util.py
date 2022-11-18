@@ -68,6 +68,7 @@ def fit(origin_data, nums, peak_rate, cut_idx = []):
     if not message:
         return [], [], [], [], [], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_input)
+    length = len(Nm_res)
     res = []
     cut_dict = []
     start =int(origin_data[0][0])
@@ -89,7 +90,7 @@ def fit(origin_data, nums, peak_rate, cut_idx = []):
             fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
             temp.append(fit_res)
             res.append(temp)
-    return origin_data, res, Nm_res, Tm_res, b_res, cut_dict, True
+    return origin_data, res, Nm_res[:length-1].tolist(), Tm_res[:length-1].tolist(), b_res[:length-1].tolist(), cut_dict, True
 
 
 def get_fit_res(origin_input):
