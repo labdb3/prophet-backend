@@ -190,6 +190,7 @@ def getResultWithParams(request):
             obj["loss"] = get_loss(obj["dataset_yAxis"], obj["翁氏模型"])
         elif model=="灰度预测":
             obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
+            _, obj["fit"], obj["Nm_l"], obj["tm_l"], obj["b_l"], obj["color"], _ = get_fit_GM(dataset,params)
             print(obj["灰度预测"])
             print(obj["dataset_yAxis"])
             if msg != None:

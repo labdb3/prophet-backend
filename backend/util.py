@@ -1,5 +1,5 @@
 import pymongo
-from model.pred import getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,loadModel_prophet
+from model.pred import getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,loadModel_prophet,get_fit_GM
 from common.common import *
 
 
