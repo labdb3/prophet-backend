@@ -108,8 +108,6 @@ def partition_fitting(partition, deg):
     for p in partition:
         x_list.append([p[i][0] for i in range(0, len(p))])
         y_list.append([p[i][1] for i in range(0, len(p))])
-    ##print(x_list)
-    ##print(y_list)
     fitting_y_list = []
     args_list = []
     for i in range(0, len(x_list)):

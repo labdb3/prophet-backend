@@ -27,8 +27,6 @@ for i in font_list:
 """
 
 def k_means(sheet_name:list, data:list):
-    print("------")
-    print(sheet_name,data)
     X = to_time_series_dataset(data)
     # 数据标准化
     X = TimeSeriesScalerMeanVariance(mu=0.0, std=1.0).fit_transform(X)
@@ -93,6 +91,7 @@ def k_means(sheet_name:list, data:list):
             for x in range(max_len4 - len(data[i])):
                 data[i].append(0)
 
+    # print("labels:",labels)
     # 生成代表曲线
     represent1 = []
     represent2 = []
@@ -151,9 +150,12 @@ def k_means(sheet_name:list, data:list):
     ax4.set_title(title4, fontsize='x-small')
 
     for i in data:
-        for x in range(len(i)):
+        x = len(i)-1
+        while(x>0):
             if i[x] == 0:
-                del i[x:]
+                del i[x]
+                x = x-1
+            else:
                 break
 
     for x in range(len(labels)):
@@ -175,4 +177,9 @@ def k_means(sheet_name:list, data:list):
     ax4.plot(range(len(represent4)), represent4, color='m', label='代表曲线', linestyle="-")
     ax4.legend()
 
+
     plt.savefig("static/clustering.jpeg")
+    from PIL import Image
+    im = Image.open("static/clustering.jpeg").convert("RGB")
+    im.save("static/clustering.webp","webp")
+

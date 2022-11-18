@@ -56,61 +56,6 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
     return origin_data, res, True
 
 
-def pred(origin_data, nums, peak_rate, years, cut_idx = []):
-    origin_data, cur_fit_input, origin_model_input, message = get_model_input(origin_data, nums, peak_rate)
-    if not message:
-        return [],[], False
-    Nm_res, Tm_res, b_res = get_fit_res(origin_model_input)
-
-    '''
-    for i in range(0, len(b_res)):
-        b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
-        Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
-    '''
-    res = []
-    start = int(origin_data[0][0])
-    for i in range(0, len(cur_fit_input)):
-        T_pred = Tm_res[i]##origin_model_input[i][1]######
-        b_pred = b_res[i]
-        N_pred = Nm_res[i]
-        interval_start = int(cur_fit_input[i][0][0])
-        k = len(cur_fit_input[i])
-        interval_end = int(cur_fit_input[i][k-1][0])
-        for j in range(interval_start, interval_end+1):
-            temp = []
-            temp.append(j)
-            fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
-            temp.append(fit_res)
-            res.append(temp)
-    p = len(b_res)
-    pred_b = b_res[p-1]
-    pred_N = Nm_res[p-1]
-    pred_Tm = Tm_res[p-1]
-
-    start_year = origin_data[len(origin_data)-1][0]
-    for i in range(1, years + 1):
-        temp = []
-        temp.append(i+start_year)
-        fit_res = 2 * pred_N / (1 + np.cosh(pred_b * (i+start_year - pred_Tm)))
-        temp.append(fit_res)
-        res.append(temp)
-    return origin_data, res, True
-    '''
-    k = len(data)
-    p = len(origin_input[1])
-    last_year = data[k-1][0] + years
-    Tm_list = origin_input[1,:]
-    curr_year = origin_input[1][p-1]
-    cnt = 0
-    while curr_year<last_year:
-        cnt += 1
-        fitting_Tm = xlsx_reader.first_order_GM(Tm_list)
-        curr_year = fitting_Tm[len(fitting_Tm) - 1]
-        Tm_list = np.append(Tm_list, curr_year)
-
-    for i in range(0, cnt):
-        j = 1
-    '''
 
 
 def fit(origin_data, nums, peak_rate, cut_idx = []):
@@ -121,29 +66,30 @@ def fit(origin_data, nums, peak_rate, cut_idx = []):
     #stat: 将来用于归一化还原的统计量信息
     origin_data, cur_fit_input, origin_input, message = get_model_input(origin_data, nums, peak_rate)
     if not message:
-        return [],[], False
+        return [], [], [], [], [], False
     Nm_res, Tm_res, b_res = get_fit_res(origin_input)
-    '''
-    for i in range(0, len(b_res)):
-        b_res[i] = b_res[i] * stat[2][1] + stat[2][0]
-        Nm_res[i] = Nm_res[i] * stat[0][1] + stat[0][0]
-    '''
     res = []
-    start = origin_data[0][0]
+    cut_dict = []
+    start =int(origin_data[0][0])
     for i in range(0, len(cur_fit_input)):
         T_pred = Tm_res[i]
         b_pred = b_res[i]
         N_pred = Nm_res[i]
-        interval_start = cur_fit_input[i][0][0]
+        interval_start = int(cur_fit_input[i][0][0])
         k = len(cur_fit_input[i])
-        interval_end = cur_fit_input[i][k-1][0]
+        interval_end = int(cur_fit_input[i][k-1][0])
+        if i%2 == 0:
+            curr_dict = dict(gt=interval_start-start-1, lte=interval_end-start, color ='green')
+        else:
+            curr_dict = dict(gt=interval_start - start - 1, lte=interval_end - start, color='red')
+        cut_dict.append(curr_dict)
         for j in range(interval_start, interval_end+1):
             temp = []
             temp.append(j)
             fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
             temp.append(fit_res)
             res.append(temp)
-    return origin_data, res,True
+    return origin_data, res, Nm_res, Tm_res, b_res, cut_dict, True
 
 
 def get_fit_res(origin_input):

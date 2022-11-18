@@ -39,7 +39,7 @@ def upload(request):
                 all_data = LoadDataBase()
                 if myFile.name in all_data.keys():
                     os.remove(os.path.join(dir, myFile.name))
-                    return HttpResponse('ok')
+                    return JsonResponse('文件已存在',safe=False)
                 all_data[myFile.name]={}
                 sheets = pd.read_excel(os.path.join(dir, myFile.name), sheet_name=None)
                 # print(sheets)
@@ -397,13 +397,19 @@ def showPhoto(request):
 
 @csrf_exempt
 def showClustering(request):
+    data = json.loads(request.body.decode('utf-8'))
+    dataname = data.get("name")
+    print("--------")
+    print(dataname)
     all_data = LoadDataBase()
     sheetname = []
     data = []
     for fileName in all_data.keys():
         for sheetName in all_data[fileName]:
-            sheetname.append(fileName+"-"+sheetName)
-            data.append(all_data[fileName][sheetName]["yAxis"])
+            cur = fileName+"_"+sheetName
+            if cur in dataname:
+                sheetname.append(fileName+"_"+sheetName)
+                data.append(all_data[fileName][sheetName]["yAxis"])
 
 
 
