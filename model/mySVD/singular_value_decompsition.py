@@ -1,7 +1,6 @@
 '''数据处理'''
 import pandas as pd
 import numpy as np
-from data.preprocess import BASE_DIR
 '''数据可视化'''
 import matplotlib.pyplot as plt
 import os
@@ -10,7 +9,7 @@ plt.rcParams['figure.dpi'] = 800  # 调整分辨率
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文
 plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
 '''
-
+BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
 
 
 # 算法封装
@@ -69,10 +68,11 @@ class SSA(object):
     def vis(self):
         '''可视化子序列
         '''
-        fig, axs = plt.subplots(self.r, sharex='all')
-        for i in range(self.r):
+        fig, axs = plt.subplots(5, sharex='all')
+        for i in range(0, 5):
             axs[i].plot(self.reconsruct(i),'r', lw=1)
             axs[i].plot(self.orig_TS, 'b')
+            axs[i].legend(['decomposition', 'actual'])
         plt.show()
 
 
@@ -81,6 +81,6 @@ file = r'D:/机器学习/crude-oil-price.csv'
 oil_info = pd.read_excel(os.path.join(BASE_DIR, '三个样本.xlsx'), header = 0,  sheet_name='样本1', skiprows=0)
 oil_info.columns = ['ds', 'y']
 price = oil_info['y']
-price_SSA = SSA(price, 3)
+price_SSA = SSA(price, 5)
 comps_df = price_SSA.comps_to_df()
 price_SSA.vis()

@@ -100,7 +100,7 @@ def cur_fit(lines):
         def hubbert_function(x, b):
             return 2 * Nm / (1 + np.cosh(b * (x - Tm)))
 
-        popt, pcov = curve_fit(hubbert_function, x, y)
+        popt, pcov = curve_fit(hubbert_function, x, y, maxfev = 10000)
         y2 = [hubbert_function(xx, popt[0], ) for xx in x]
         res.append([Nm, Tm, popt[0]])
 
