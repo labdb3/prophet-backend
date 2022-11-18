@@ -148,36 +148,6 @@ def saveDataset(request):
 
     return JsonResponse(name,safe=False)
 
-# @csrf_exempt
-# def getResultOfModel(request):
-#     if request.method=='POST':
-#         data = json.loads(request.body.decode('utf-8'))
-#         models = data.get('models')
-#         dataset_name = data.get('dataset')
-#         print("models:",models)
-#         print("dataset:",dataset_name)
-#
-#
-#         data =  GetData(dataset_name)
-#
-#         obj = {
-#             "dataset_xAxis":data[0],
-#             "dataset_yAxis":data[1]
-#         }
-#         for model in models:
-#             if model=="prophet":
-#                 obj["prophet"] = getResultOfDataset_prophet(dataset_name)
-#             elif model=="翁氏模型":
-#                 obj["翁氏模型"] = getResultOfDataset_wensi(dataset_name)
-#             elif model=="灰度预测":
-#                 obj["灰度预测"] = getResultOfDataset_GM(dataset_name)
-#
-#
-#         print(obj)
-#         return JsonResponse(
-#             obj,safe=False
-#         )
-
 
 @csrf_exempt
 def getResultWithParams(request):
@@ -274,8 +244,17 @@ def getDataset(request):
 
 
 @csrf_exempt
+def getURL(request):
+    return JsonResponse(
+        {
+            "url":URL,
+        }
+    )
+
+@csrf_exempt
 def getModelList(request):
     model = request.GET.get("model",'')
+    dataset = request.GET.get("dataset",'')
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
     if model=="prophet":
@@ -287,7 +266,7 @@ def getModelList(request):
 
     res = []
     for x in mycol.find():
-        if x["name"]==None:
+        if x["dataset"]!= dataset:
             continue
         res.append(x["name"])
     

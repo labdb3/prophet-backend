@@ -14,9 +14,9 @@ import pandas as pd
         }
     }
 """
-
-#DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
-DATABASE_PATH = "D:\dblab3\prophet-backend\data"
+URL = "http://127.0.0.1:8000/"
+DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
+#DATABASE_PATH = "D:\dblab3\prophet-backend\data"
 
 def getFileName(query):
     fileName = query.split("_")[0]
