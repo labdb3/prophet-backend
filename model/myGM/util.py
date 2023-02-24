@@ -2,11 +2,13 @@ import model.myGM.xlsx_reader as xlsx_reader
 import model.myGM.data_preprocess as data_preprocess
 import numpy as np
 import copy
+import model.sum.sum_partition as sum_partition
 import pandas as pd
 
 
 def get_preprocess(data):
     return 0
+
 
 
 def predict(origin_data, nums, peak_rate, years, cut_idx = []):
@@ -56,6 +58,81 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
     return origin_data, res, True
 
 
+def get_fit_params(origin_data, nums, peak_rate):
+    origin_data, cur_fit_input, origin_input, message = get_model_input(origin_data, nums, peak_rate)
+    if not message:
+        return [], [], [], [], False
+    Tm = origin_input[:, 1].tolist()
+    Nm = origin_input[:, 0].tolist()
+    b = origin_input[:, 2].tolist()
+    res = []
+    start =int(origin_data[0][0])
+    for i in range(0, len(cur_fit_input)):
+        T_pred = Tm[i]
+        b_pred = b[i]
+        N_pred = Nm[i]
+        interval_start = int(cur_fit_input[i][0][0])
+        k = len(cur_fit_input[i])
+        interval_end = int(cur_fit_input[i][k-1][0])
+        for j in range(interval_start, interval_end+1):
+            temp = []
+            temp.append(j)
+            fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
+            temp.append(fit_res)
+            res.append(temp)
+    return Tm, Nm, b, res, True
+
+
+def get_manual_predicting(origin_data, Tm, Nm, b, params, N_w = None, b_w = None):
+    origin_data, cur_fit_input, origin_input, message = get_model_input(origin_data, params['nums'], params['peak_rate'])
+    if not message:
+        return [], [], [], [], False
+    k = len(origin_data)
+    p = len(Tm)
+    if p <= 1:
+        return [], [], False
+    if N_w is None:
+        N_w = [1 for i in range(0, p)]
+    if b_w is None:
+        b_w = [1 for i in range(0, p)]
+    sum = 0
+    end_year = int(origin_data[k-1][0])
+    for i in range(0, p-1):
+        sum += Tm[i+1] - Tm[i]
+    sum = int(sum/(p-1))
+    start = int(origin_data[0][0])
+    predict_Tm = Tm[p - 1] + sum
+    years =(int) (predict_Tm - end_year - 1) * 2 + 1
+    sum_Nm = 0
+    sum_Nm_p = 0
+    sum_b = 0
+    sum_b_p = 0
+    for i in range(0, len(Nm)):
+        sum_Nm += Nm[i] * N_w[i]
+        sum_Nm_p += N_w[i]
+        sum_b += b[i] *b_w[i]
+        sum_b_p += b_w[i]
+    predict_Nm = sum_Nm/sum_Nm_p
+    predict_b = sum_b/sum_b_p
+    res = []
+    for i in range(0, len(cur_fit_input)):
+        T_pred = Tm[i]##origin_model_input[i][1]######
+        b_pred = b[i]
+        N_pred = Nm[i]
+        interval_start = int(cur_fit_input[i][0][0])
+        k = len(cur_fit_input[i])
+        interval_end = int(cur_fit_input[i][k-1][0])
+        for j in range(interval_start, interval_end+1):
+            temp = []
+            temp.append(j)
+            fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
+            temp.append(fit_res)
+            res.append(temp)
+    for i in range(1, years + 1):
+        year = end_year + i
+        production = 2* predict_Nm /(1 + np.cosh(predict_b*(i + end_year - predict_Tm)))
+        res.append([year, production])
+    return origin_data, res
 
 
 def fit(origin_data, nums, peak_rate, cut_idx = []):
@@ -115,6 +192,17 @@ def get_fit_res(origin_input):
     return Nm_one, Tm_one, bm_one
 
 
+def get_origin_data(data):
+    data = data_preprocess.preprocess(data)
+    data_after_preprocess = []
+    for i in range(0, len(data['y'].values)):
+        l = []
+        l.append(data['ds'].values[i])
+        l.append(data['y'].values[i])
+        data_after_preprocess.append(l)
+    return data_after_preprocess
+
+
 def get_model_input(data, nums, peak_rate):
     data = data_preprocess.preprocess(data)
     data_after_preprocess = []
@@ -123,6 +211,16 @@ def get_model_input(data, nums, peak_rate):
         l.append(data['ds'].values[i])
         l.append(data['y'].values[i])
         data_after_preprocess.append(l)
+    '''
+    sum = sum_partition.get_sum(data)
+    min_partition = sum_partition.get_partition(sum, 5)
+    res = sum_partition.get_GM_input(min_partition)
+    '''
+    '''
+    print("----")
+    print(res)
+    print("----")
+    '''
     idx = data_preprocess.get_max_index(data_after_preprocess, nums, peak_rate)
     res = data_preprocess.get_curve_fit_input(data_after_preprocess, idx)
     if len(res) < 2:

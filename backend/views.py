@@ -16,6 +16,7 @@ import PIL.Image as Image
 from io import BytesIO
 import base64
 import matplotlib
+import pymongo
 from model.k_means_platform import k_means
 matplotlib.use('Agg')
 from model.pred import get_sum_fitting

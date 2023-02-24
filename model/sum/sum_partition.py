@@ -1,17 +1,8 @@
 import numpy as np
 import copy
-import pandas as pd
-import data.preprocess_util as data_preprocess
-import os
-from model.pred import BASE_DIR
-import matplotlib
 import matplotlib.pyplot as plt
 import warnings
-# matplotlib.rcParams['font.sans-serif'] = ['Simsun']
-# matplotlib.rcParams['font.size'] = 11
 
-res_list = []
-cur_list = []
 
 
 def get_sum(data_frame):
@@ -41,8 +32,16 @@ def dfs(cur_idx, cur_length, n, m):
     return res_list
 
 
+def check(partition, threshold = 3):
+    prev_idx = -1
+    for idx in partition:
+        if idx - prev_idx < threshold:
+            return False
+        prev_idx = idx
+    return True
+
+
 def get_partition(input_sum, partition_num):
-    partition_num = 4
     '''
 
     :param input_sum: 累积曲线列表
@@ -71,6 +70,8 @@ def get_partition(input_sum, partition_num):
     min_diff = 1e11
     min_partition_plan = []
     for partition_plan in res_list:
+        if not check(partition_plan):
+            continue
         curr_diff = 0e0
         prev_idx = -1
         for num in partition_plan:
@@ -98,7 +99,22 @@ def get_partition(input_sum, partition_num):
     for j in range(start_idx, length):
         curr_partition.append([years[j], value_sum[j]])
     min_partition.append(curr_partition)
+    print("----")
+    print(min_partition)
+    print("----")
     return min_partition
+
+
+def get_GM_input(min_partition):
+    GM_input = []
+    prev = 0
+    for i in range(0, len(min_partition)):
+        curr = []
+        for j in range(0, len(min_partition[i])):
+            curr.append([min_partition[i][j][0], min_partition[i][j][1] - prev])
+            prev = min_partition[i][j][1]
+        GM_input.append(curr)
+    return GM_input
 
 
 def partition_fitting(partition, deg):
@@ -125,7 +141,6 @@ def partition_fitting(partition, deg):
         args_list.append(args)
         p = np.poly1d(args)
         fitting_y_list.append([p(x_list[i][j]) for j in range(0, len(x_list[i]))])
-    ##print(fitting_y_list)
     print(x_list)
     print(y_list)
     print(fitting_y_list)

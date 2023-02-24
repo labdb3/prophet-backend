@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 data = pd.read_excel("./数据单元.xlsx", sheet_name='3',header=0,skiprows=0)
 
+
 def preprocess(data):
     data = pd.DataFrame(np.array(data).reshape((-1, 1)))
     data.columns = ['y']

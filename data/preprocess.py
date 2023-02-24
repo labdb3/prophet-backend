@@ -2,14 +2,20 @@ import numpy as np
 import pandas as pd
 import copy
 from matplotlib import pyplot
-import xlsxwriter
 from common.common import *
 
+
+'''
+@:param data: 二维列表 第一个元素是年份列表 第二个元素是产量列表
+举例:data: [[1989,1990], [35, 80]]
+窗口函数只需要第二个元素
+@:param: window_size: 窗口大小
+'''
 
 def Method1(dataName,window_size):
     fileName,sheetName = getFileName(dataName)
     data = GetDataFrame_dataset(fileName,sheetName,'ds','y').to_numpy().transpose().tolist()
-
+    print(data)
     dataw = []
     if window_size==2:
         model = MovAvg(2)

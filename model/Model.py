@@ -53,6 +53,7 @@ class prophetModel(MetaModel):
             data['y'] = standard(data['y'])
         elif self.data_prepare == "normalize":
             data['y'] = normalize(data['y'])
+        print("----------")
         self.model.fit(data)
         if self.k !=0 and self.k !=None:
             self.model.params["k"] = np.array([[self.k]])
@@ -76,9 +77,9 @@ class prophetModel(MetaModel):
         min_y_pred = []
         min_niheError = 10000
 
-        n_changepoints =[0.1,0.2]# [0.1, 0.2, 0.3, 0.4, 0.5]
-        changepoint_prior_scale = [1]#[1, 2, 3, 4, 5]
-        seasonality_prior_scale = [1]#[1, 2, 3, 4, 5]#[1, 2, 3, 4, 5]
+        n_changepoints =[0.1, 0.2, 0.3, 0.4, 0.5]
+        changepoint_prior_scale = [1, 2, 3, 4, 5]
+        seasonality_prior_scale = [1, 2, 3, 4, 5]#[1, 2, 3, 4, 5]
         for n_changepoints_parm in n_changepoints:
             for changepoint_prior_scale_parm in changepoint_prior_scale:
                 for seasonality_prior_scale_parm in seasonality_prior_scale:
@@ -98,7 +99,7 @@ class prophetModel(MetaModel):
                         data['y'] = normalize(data['y'])
                     """
                     data['y'] = np.log1p(data['y'])
-
+                    print("----")
                     model.fit(data)
                     future = []
                     for i in range(len(data['y']) + future_num):
