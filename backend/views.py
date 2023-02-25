@@ -256,6 +256,7 @@ def getModelList(request):
     dataset = request.GET.get("dataset",'')
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
+    print(model,dataset)
     if model=="prophet":
         mycol = mydb["prophet"]
     elif model=="翁氏模型":
@@ -264,10 +265,14 @@ def getModelList(request):
         mycol = mydb["灰度预测"]
 
     res = []
-    for x in mycol.find():
-        if x["dataset"]!= dataset:
-            continue
-        res.append(x["name"])
+    if dataset=="":
+        for x in mycol.find():
+            res.append(x["name"])
+    else:
+        for x in mycol.find():
+            if x["dataset"]!= dataset:
+                continue
+            res.append(x["name"])
     
     resp = [{"value":item,"label":item} for item in res]
     return JsonResponse(resp,safe=False)
