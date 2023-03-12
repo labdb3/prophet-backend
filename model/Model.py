@@ -35,6 +35,10 @@ class prophetModel(MetaModel):
 
     # fit(year:年份list，storage:储量list)
     def fit(self, year: list, storage: list):
+        print("hello")
+        print(year)
+        print(storage)
+        print("hi")
         if self.refind:
             self.GetBestParams(year,storage)
 

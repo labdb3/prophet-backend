@@ -4,7 +4,7 @@ import data.data_imputation as data_imputation
 from common.common import *
 import model.sum.sum_partition as sum_partition
 import model.myGM.util as util
-from data.data_imputation import preprocess
+from data.data_imputation import preprocess,pre_process_with_list
 
 
 # 自定义参数的模型
@@ -14,10 +14,10 @@ def loadModel_prophet(dataset,params):
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel(n_changepoints=params["n_changepoints"],changepoint_prior_scale=params["changepoint_prior_scale"],seasonality_prior_scale=params["seasonality_prior_scale"],refind=False)
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1])['y'].to_numpy().transpose().tolist()[0])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],pre_process_with_list(data[1]))
     else:
         model = prophetModel(k=params["k"])
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1])['y'].to_numpy().transpose().tolist()[0])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],pre_process_with_list(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
     return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
@@ -27,16 +27,16 @@ def getResultWithParams_prophet(dataset,params):
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel()
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data)['y'].to_numpy().transpose().tolist()[0])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], pre_process_with_list(data[1]))
     else:
         model = prophetModel(k=params["k"])
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data)['y'].to_numpy().transpose().tolist()[0])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], pre_process_with_list(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
     return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
 
 def getResultWithParams_wensi(dataset,params):
-    data = GetData(dataset)
+    data = getFileName(dataset)
     if params["a"]==0 and params["b"]==0 and params["c"]==0:
         tmp_x = list(range(1, len(data[0]) + 1))
         tmp_y = data[1]
