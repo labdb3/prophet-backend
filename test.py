@@ -53,7 +53,7 @@ def preprocess(data):
 
 from common.common import *
 import pandas as pd
-from data.preprocess import Method2
+from data.smoothprocessing import Method2
 
 
 if __name__=='__main__':

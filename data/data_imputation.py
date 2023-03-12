@@ -1,9 +1,11 @@
-import pandas as pd
-import numpy as np
-
 def preprocess(data):
-    data = pd.DataFrame(np.array(data).reshape((-1, 1)))
-    data.columns = ['y']
+    '''
+    :description:数据缺失值处理算法
+    这个邦彦师兄他的代码风格实在是一言难尽，我就不改了......
+    :param data:
+    :return:处理好的数据 仍是dataframe格式
+    '''
+    data.columns = ['ds','y']
     i = 0
     while (i<(len(data['y'].values)-2)):
         if data['y'].values[i]==0 or data['y'].values[i]==1:
@@ -47,4 +49,4 @@ def preprocess(data):
                         for j in range(temp,i+2):
                             data['y'].values[j]= data['y'].values[temp - 1]+(j-temp+1)*(data['y'].values[i+1]-data['y'].values[temp-1])/3/(i-temp+2)
         i += 1
-    return data.to_numpy().transpose().tolist()[0]
+    return data

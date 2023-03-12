@@ -4,7 +4,7 @@ from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 import matplotlib.pyplot as plt
 import pandas as pd
 import test as data_preprocess
-plt.rcParams['font.sans-serif']= ['Songti SC']
+##plt.rcParams['font.sans-serif']= ['Songti SC']
 
 """
 # 显示一下系统支持的中文字体，查看可用的中文字体，
@@ -116,7 +116,7 @@ def k_means(sheet_name:list, data:list):
         represent4.append(int(sum / len(label4)))
 
     plt.figure(figsize=(8, 8), dpi=800)
-    plt.suptitle("聚类结果展示")
+    plt.suptitle("clustering results")
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(222)
     ax3 = plt.subplot(223)
@@ -157,35 +157,40 @@ def k_means(sheet_name:list, data:list):
         elif labels[x] == 3:
             ax4.plot(range(len(data[x])), data[x], color="g",  linestyle="--")
 
-    ax1.plot(range(len(represent1)),represent1, color ='m', label='代表曲线',  linestyle="-")
+    ax1.plot(range(len(represent1)),represent1, color ='m', label='representative curves',  linestyle="-")
     ax1.legend()
-    ax2.plot(range(len(represent2)), represent2, color='m', label='代表曲线', linestyle="-")
+    ax2.plot(range(len(represent2)), represent2, color='m', label='representative curves', linestyle="-")
     ax2.legend()
-    ax3.plot(range(len(represent3)), represent3, color='m', label='代表曲线', linestyle="-")
+    ax3.plot(range(len(represent3)), represent3, color='m', label='representative curves', linestyle="-")
     ax3.legend()
-    ax4.plot(range(len(represent4)), represent4, color='m', label='代表曲线', linestyle="-")
+    ax4.plot(range(len(represent4)), represent4, color='m', label='representative curves', linestyle="-")
     ax4.legend()
 
     plt.savefig("demo.jpeg")
 
+
 path = './数据单元.xlsx'
+
+
 def read_excel2(path):
-  data_xls = pd.io.excel.ExcelFile(path)
-  data = []
-  title = data_xls.sheet_names
-  for name in data_xls.sheet_names:
-    df=pd.read_excel(data_xls,sheet_name=name,usecols=[1] ,header=1)
-    # 数据预处理
-    df = data_preprocess.preprocess(df)
-    data.append(df.values.tolist())
-  data1 = []
-  for i in data:
-    temp = []
-    for x in i:
-      temp.append(x[0])
-    data1.append(temp)
-  return title,data1
-title ,data = read_excel2(path)
+    data_xls = pd.io.excel.ExcelFile(path)
+    data = []
+    title = data_xls.sheet_names
+    for name in data_xls.sheet_names:
+        df = pd.read_excel(data_xls, sheet_name=name, usecols=[1], header=1)
+        # 数据预处理
+        df = data_preprocess.preprocess(df)
+        data.append(df.values.tolist())
+    data1 = []
+    for i in data:
+        temp = []
+        for x in i:
+            temp.append(x[0])
+        data1.append(temp)
+    return title, data1
+
+
+title, data = read_excel2(path)
 print("title:",title)
 print("data:",data)
 

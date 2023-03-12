@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .util import *
-from data.preprocess import Method1
+from data.smoothprocessing import Method1
 from common.common import *
 import matplotlib.pyplot as plt
 import PIL.Image as Image

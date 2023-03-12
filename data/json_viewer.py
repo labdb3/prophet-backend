@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.rcParams['font.sans-serif'] = ['Simsun']
@@ -19,6 +18,5 @@ for d in data:
         x = [i for i in range(idx, end)]
         plt.plot(x, part)
         idx = end
-    ##plt.legend()
-    plot_num +=1
+    plot_num += 1
 plt.show()
