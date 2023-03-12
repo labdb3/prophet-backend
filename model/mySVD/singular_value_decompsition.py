@@ -1,14 +1,8 @@
-'''数据处理'''
 import pandas as pd
 import numpy as np
-'''数据可视化'''
 import matplotlib.pyplot as plt
 import os
-'''
-plt.rcParams['figure.dpi'] = 800  # 调整分辨率
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文
-plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
-'''
+
 BASE_DIR = 'D:\dblab3\prophet-backend\data\datasets'
 
 

@@ -1,50 +1,42 @@
 from model.Model import prophetModel, GMModel,wenshiModel
-from model import myGM as data_preprocess
-import os
-import pandas as pd
-from prophet import Prophet
-import model.myGM.data_preprocess as data_preprocess
+
+import data.data_imputation as data_imputation
 from common.common import *
 import model.sum.sum_partition as sum_partition
 import model.myGM.util as util
-import model.myGM.xlsx_reader as xlsx_reader
-from data.preprocess_util import preprocess
-
+from data.data_imputation import preprocess,pre_process_with_list
 
 
 # 自定义参数的模型
-
 def loadModel_prophet(dataset,params):
     data = GetData(dataset)
 
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel(n_changepoints=params["n_changepoints"],changepoint_prior_scale=params["changepoint_prior_scale"],seasonality_prior_scale=params["seasonality_prior_scale"],refind=False)
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],pre_process_with_list(data[1]))
     else:
         model = prophetModel(k=params["k"])
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],pre_process_with_list(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
     return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
 
 def getResultWithParams_prophet(dataset,params):
     data = GetData(dataset)
-
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
         model = prophetModel()
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], pre_process_with_list(data[1]))
     else:
         model = prophetModel(k=params["k"])
-        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], pre_process_with_list(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
     return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
 
 def getResultWithParams_wensi(dataset,params):
-    data = GetData(dataset)
-
+    data = getFileName(dataset)
     if params["a"]==0 and params["b"]==0 and params["c"]==0:
         tmp_x = list(range(1, len(data[0]) + 1))
         tmp_y = data[1]
@@ -99,7 +91,7 @@ def getResultWithParams_GM(origin_data,params):
 def get_preprocess_res(dataset):
     fileName, sheetName = getFileName(dataset)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
-    pre = data_preprocess.preprocess(data)
+    pre = data_imputation.preprocess(data)
     data = []
     length = len(pre['y'].values)
     for i in range(0, length):
@@ -164,23 +156,25 @@ def get_sum_fitting(dataset, params):
     res_list = []
     fileName, sheetName = getFileName(dataset)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
-    pre = data_preprocess.preprocess(data)
+    pre = data_imputation.preprocess(data)
     sum = sum_partition.get_sum(pre)
     partition = sum_partition.get_partition(input_sum=sum, partition_num=params['partition_num'])
     x_list, y_list, fitting_y_list, args_list = sum_partition.partition_fitting(partition, deg=params['degree'])
     poly_list = []
     for args in args_list:
         if len(args) > 1:
-           poly = sum_partition.f(args, len(args) - 1)
+           poly = sum_partition.get_poly(args, len(args) - 1)
            poly_list.append(poly)
     sum_file_name, actual_file_name= sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
     return sum_file_name, actual_file_name, poly_list
 
 
+'''
 params = {'nums':1, 'peak_rate':0.4, 'option': 1}
 Tm, Nm, b, message = get_fit_params("三个样本.xlsx_样本1", params)
 origin_data, res = get_manual_predicting("三个样本.xlsx_样本1", Tm, Nm, b,params)
 xlsx_reader.draw_pred(res)
 xlsx_reader.draw_pred(origin_data)
+'''
 
 

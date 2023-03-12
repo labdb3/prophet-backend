@@ -44,17 +44,21 @@ def check(partition, threshold = 3):
 def get_partition(input_sum, partition_num):
     '''
 
-    :param input_sum: 累积曲线列表
+    :param input_sum: 一个累积曲线列表，每个元素是[年份，累积产量]
            partition_num: 划分段数
     :return:
+    min_partition 一个三维列表，代表运用最小误差直方图对累积曲线进行划分的结果
     '''
     global res_list
     res_list = []
     global cur_list
     cur_list = []
     length = len(input_sum)
-    print(length)
-
+    ##print(length)
+    '''
+       D(X) = E(X^2) - E(X)^2
+       这里同样对累积曲线求了前缀和，可以方便快速我们求平均值
+    '''
     years = [input_sum[i][0] for i in range(0, length)]
     value_sum = [input_sum[i][1] for i in range(0, length)]
     prefix_sum = np.zeros(length)
@@ -65,9 +69,15 @@ def get_partition(input_sum, partition_num):
         prefix_sum[i] = prefix_sum[i-1] + value_sum[i]
         square_prefix_sum[i] = square_prefix_sum[i-1] + value_sum[i]* value_sum[i]
 
-
+    '''
+       先使用DFS 得到对特定列表的所有划分 比如我们有一个长度为6的列表，这里以0开始的下标指代元素，那么我们可以得到partition_num为3的划分如下:
+       长度为6的列表，元素之前有5个空隙，那么我们得到个数为3的划分 等价于从5个空隙中选择两个 这个选择方案可以通过dfs给出
+    '''
     res_list = dfs(cur_idx=0, cur_length=0, n=length - 1, m=partition_num)
     min_diff = 1e11
+    '''
+       找到方差之和最小的选择方案
+    '''
     min_partition_plan = []
     for partition_plan in res_list:
         if not check(partition_plan):
@@ -99,9 +109,11 @@ def get_partition(input_sum, partition_num):
     for j in range(start_idx, length):
         curr_partition.append([years[j], value_sum[j]])
     min_partition.append(curr_partition)
+    '''
     print("----")
     print(min_partition)
     print("----")
+    '''
     return min_partition
 
 
@@ -118,6 +130,16 @@ def get_GM_input(min_partition):
 
 
 def partition_fitting(partition, deg):
+    '''
+    @:description: 根据分段结果对原曲线进行多项式拟合
+    :param partition: 划分方案
+    :param deg: 对原曲线进行分段多项式拟合的最大多项式次数
+    :return:
+    x_list:原始年份列表
+    y_list:原始产量列表
+    fitting_y_list:拟合产量列表
+    args_list: 多项式参数列表
+    '''
     max_deg = 4
     x_list = []
     y_list = []
@@ -180,40 +202,46 @@ def save_plot(data_name, x, y, fit_y):
     return sum_file_name, actual_file_name
 
 
-def f(A, n):
+def get_poly(ploy_coefficients_list, n):
+    '''
+    @:description: 得到多项式字符串
+    :param ploy_coefficients_list: 多项式系数列表
+    :param n: 多项式最高次数
+    :return: 一个多项式字符串
+    '''
     if n >= 2:
-        if A[0] == 1:
+        if ploy_coefficients_list[0] == 1:
             Fx = 'x^{}'.format(n)
-        elif A[0] == -1:
+        elif ploy_coefficients_list[0] == -1:
             Fx = '-x^{}'.format(n)
         else:
-            Fx = '{}x^{}'.format(A[0], n)
+            Fx = '{}x^{}'.format(ploy_coefficients_list[0], n)
     else:
-        Fx = '{}x'.format(A[0])
+        Fx = '{}x'.format(ploy_coefficients_list[0])
     for i in range(1, n - 1):
-        if A[i] > 0 and A[i] != 1:
-            Fx = Fx + '+{}x^{}'.format(A[i], n - i)
-        elif A[i] == 1:
+        if ploy_coefficients_list[i] > 0 and ploy_coefficients_list[i] != 1:
+            Fx = Fx + '+{}x^{}'.format(ploy_coefficients_list[i], n - i)
+        elif ploy_coefficients_list[i] == 1:
             Fx = Fx + '+x^{}'.format(n - i)
-        elif A[i] < 0 and A[i] != -1:
-            Fx = Fx + '{}x^{}'.format(A[i], n - i)
-        elif A[i] == -1:
+        elif ploy_coefficients_list[i] < 0 and ploy_coefficients_list[i] != -1:
+            Fx = Fx + '{}x^{}'.format(ploy_coefficients_list[i], n - i)
+        elif ploy_coefficients_list[i] == -1:
             Fx = Fx + '-x^{}'.format(n - i)
 
     if n >= 2:
-       if A[-2] > 0 and A[-2] != 1:
-           Fx = Fx + '+{}x'.format(A[-2])
-       elif A[-2] == 1:
+       if ploy_coefficients_list[-2] > 0 and ploy_coefficients_list[-2] != 1:
+           Fx = Fx + '+{}x'.format(ploy_coefficients_list[-2])
+       elif ploy_coefficients_list[-2] == 1:
            Fx = Fx + '+x'
-       elif A[-2] < 0 and A[-2] != -1:
-           Fx = Fx + '{}x'.format(A[-2])
-       elif A[-2] == -1:
+       elif ploy_coefficients_list[-2] < 0 and ploy_coefficients_list[-2] != -1:
+           Fx = Fx + '{}x'.format(ploy_coefficients_list[-2])
+       elif ploy_coefficients_list[-2] == -1:
            Fx = Fx + '-x'
 
-    if A[-1] > 0:
-        Fx = Fx + '+{}'.format(A[-1])
-    elif A[-1] < 0:
-        Fx = Fx + '{}'.format(A[-1])
+    if ploy_coefficients_list[-1] > 0:
+        Fx = Fx + '+{}'.format(ploy_coefficients_list[-1])
+    elif ploy_coefficients_list[-1] < 0:
+        Fx = Fx + '{}'.format(ploy_coefficients_list[-1])
 
     return Fx
 

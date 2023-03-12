@@ -1,30 +1,24 @@
-from tslearn.clustering import TimeSeriesKMeans, silhouette_score
-from tslearn.preprocessing import TimeSeriesScalerMeanVariance
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
-
-# sheet_name 要参与聚类的文件名[sheet_name1,sheet_name2,sheet_name3,.....]
-# data sheet_name对应的储量值数据
-
 import matplotlib
 from tslearn.utils import to_time_series_dataset
 from tslearn.clustering import TimeSeriesKMeans, silhouette_score
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 import matplotlib.pyplot as plt
-import pandas as pd
+
+# sheet_name 要参与聚类的文件名[sheet_name1,sheet_name2,sheet_name3,.....]
+# data sheet_name对应的储量值数据
+
+'''
+   解决中文乱码问题
+'''
 plt.rcParams['font.sans-serif']= ['Songti SC']
 matplotlib.use('Agg')
+font_list = sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
 
-"""
-# 显示一下系统支持的中文字体，查看可用的中文字体，
-# 然后将plt.rcParams['font.sans-serif']设置成该中文字体
-# 即可解决中文乱码的问题
-font_list=sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
-for i in font_list:
-  print(i)
-"""
 
+'''
+ @:description k_means聚类算法，用于对产量曲线进行聚类
+ 
+'''
 def k_means(sheet_name:list, data:list):
     X = to_time_series_dataset(data)
     # 数据标准化
@@ -123,7 +117,7 @@ def k_means(sheet_name:list, data:list):
         represent4.append(int(sum / len(label4)))
 
     plt.figure(figsize=(8, 8), dpi=800)
-    plt.suptitle("聚类结果展示")
+    plt.suptitle("Results for clustering")
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(222)
     ax3 = plt.subplot(223)
@@ -167,18 +161,19 @@ def k_means(sheet_name:list, data:list):
         elif labels[x] == 3:
             ax4.plot(range(len(data[x])), data[x], color="g",  linestyle="--")
 
-    ax1.plot(range(len(represent1)),represent1, color ='m', label='代表曲线',  linestyle="-")
+    ax1.plot(range(len(represent1)),represent1, color ='m', label='representative curves',  linestyle="-")
     ax1.legend()
-    ax2.plot(range(len(represent2)), represent2, color='m', label='代表曲线', linestyle="-")
+    ax2.plot(range(len(represent2)), represent2, color='m', label='representative curves', linestyle="-")
     ax2.legend()
-    ax3.plot(range(len(represent3)), represent3, color='m', label='代表曲线', linestyle="-")
+    ax3.plot(range(len(represent3)), represent3, color='m', label='representative curves', linestyle="-")
     ax3.legend()
-    ax4.plot(range(len(represent4)), represent4, color='m', label='代表曲线', linestyle="-")
+    ax4.plot(range(len(represent4)), represent4, color='m', label='representative curves', linestyle="-")
     ax4.legend()
 
-
     plt.savefig("static/clustering.jpeg")
-    from PIL import Image
+    '''
+    from PIL.WebPImagePlugin import Image
     im = Image.open("static/clustering.jpeg").convert("RGB")
     im.save("static/clustering.webp","webp")
+    '''
 
