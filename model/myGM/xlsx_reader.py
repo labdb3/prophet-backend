@@ -100,21 +100,37 @@ def cur_fit(lines):
         def hubbert_function(x, b):
             return 2 * Nm / (1 + np.cosh(b * (x - Tm)))
 
-        popt, pcov = curve_fit(hubbert_function, x, y)
+        popt, pcov = curve_fit(hubbert_function, x, y, maxfev = 10000)
         y2 = [hubbert_function(xx, popt[0], ) for xx in x]
         res.append([Nm, Tm, popt[0]])
 
     return res
 
 
+def draw_actual(actual):
+    years = [x[0] for x in actual]
+    production = [x[1] for x in actual]
+    fig, ax = plt.subplots()
+    ax.plot(years, production,'b-')
+    ax.legend(['pred'])
+    plt.show()
+
+
+def draw_pred(pred):
+    years = [x[0] for x in pred]
+    production = [x[1] for x in pred]
+    fig, ax = plt.subplots()
+    ax.plot(years, production,'b-')
+    ax.legend(['pred'])
+    plt.show()
+
+
 def draw(pred, actual):
     X = [k+1 for k in range(0, len(pred))]
     fig, ax = plt.subplots()
     l = actual
-    ##l.append(0)
     ax.plot(X, pred, 'b-', label='predicting values')
     ax.plot(X, l, 'r--', label='actual value')
-    ##plt.ylim(1900,2100)
     ax.legend(['predicting', 'actual'])
     plt.show()
 

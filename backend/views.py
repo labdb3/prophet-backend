@@ -16,6 +16,7 @@ import PIL.Image as Image
 from io import BytesIO
 import base64
 import matplotlib
+import pymongo
 from model.k_means_platform import k_means
 matplotlib.use('Agg')
 from model.pred import get_sum_fitting
@@ -39,7 +40,7 @@ def upload(request):
                 all_data = LoadDataBase()
                 if myFile.name in all_data.keys():
                     os.remove(os.path.join(dir, myFile.name))
-                    return HttpResponse('ok')
+                    return JsonResponse('文件已存在',safe=False)
                 all_data[myFile.name]={}
                 sheets = pd.read_excel(os.path.join(dir, myFile.name), sheet_name=None)
                 # print(sheets)
@@ -65,9 +66,9 @@ def deleteDataSet(request):
     all_data = LoadDataBase()
     if sheetName in all_data[fileName].keys():
         del all_data[fileName][sheetName]
-
+    if len(all_data[fileName].keys())==0:
+        del all_data[fileName]
     DumpDataBase(all_data)
-
     return JsonResponse({},safe=False)
 
 
@@ -148,36 +149,6 @@ def saveDataset(request):
 
     return JsonResponse(name,safe=False)
 
-@csrf_exempt
-def getResultOfModel(request):
-    if request.method=='POST':
-        data = json.loads(request.body.decode('utf-8'))
-        models = data.get('models')
-        dataset_name = data.get('dataset')
-        print("models:",models)
-        print("dataset:",dataset_name)
-
-
-        data =  GetData(dataset_name)
-
-        obj = {
-            "dataset_xAxis":data[0],
-            "dataset_yAxis":data[1]
-        }
-        for model in models:
-            if model=="prophet":
-                obj["prophet"] = getResultOfDataset_prophet(dataset_name)
-            elif model=="翁氏模型":
-                obj["翁氏模型"] = getResultOfDataset_wensi(dataset_name)
-            elif model=="灰度预测":
-                obj["灰度预测"] = getResultOfDataset_GM(dataset_name)
-
-
-        print(obj)
-        return JsonResponse(
-            obj,safe=False
-        )
-
 
 @csrf_exempt
 def getResultWithParams(request):
@@ -207,21 +178,25 @@ def getResultWithParams(request):
             return sum/len(a)
 
         if model=="prophet":
-            obj["prophet"],obj["k"] = getResultWithParams_prophet(dataset,params)
+            obj["prophet"],obj["k"],n_changepoints,changepoint_prior_scale,seasonality_prior_scale = getResultWithParams_prophet(dataset,params)
             print(obj["k"],type(obj["k"]))
             obj["k"] = float(obj["k"])
             obj["loss"] = get_loss(obj["dataset_yAxis"],obj["prophet"])
+            obj["n_changepoints"] = n_changepoints
+            obj["changepoint_prior_scale"] = changepoint_prior_scale
+            obj["seasonality_prior_scale"] = seasonality_prior_scale
 
         elif model=="翁氏模型":
             obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
             obj["loss"] = get_loss(obj["dataset_yAxis"], obj["翁氏模型"])
         elif model=="灰度预测":
             obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
-            obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
+            _, obj["fit"], obj["Nm_l"], obj["tm_l"], obj["b_l"], obj["color"], _ = get_fit_GM(dataset,params)
             if msg != None:
                 obj["msg"] = msg
+            else:
+                obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
 
-        print("obj",obj)
         return JsonResponse(
             obj,safe=False
         )
@@ -268,10 +243,20 @@ def getDataset(request):
 
 
 @csrf_exempt
+def getURL(request):
+    return JsonResponse(
+        {
+            "url":URL,
+        }
+    )
+
+@csrf_exempt
 def getModelList(request):
     model = request.GET.get("model",'')
+    dataset = request.GET.get("dataset",'')
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
+    print(model,dataset)
     if model=="prophet":
         mycol = mydb["prophet"]
     elif model=="翁氏模型":
@@ -280,10 +265,14 @@ def getModelList(request):
         mycol = mydb["灰度预测"]
 
     res = []
-    for x in mycol.find():
-        if x["name"]==None:
-            continue
-        res.append(x["name"])
+    if dataset=="":
+        for x in mycol.find():
+            res.append(x["name"])
+    else:
+        for x in mycol.find():
+            if x["dataset"]!= dataset:
+                continue
+            res.append(x["name"])
     
     resp = [{"value":item,"label":item} for item in res]
     return JsonResponse(resp,safe=False)
@@ -354,7 +343,7 @@ def loadModel(request):
     res["years"] = years
 
     if model=="prophet":
-        obj["prophet"],obj["k"] = getResultWithParams_prophet(res["dataset"],res)
+        obj["prophet"],obj["k"],_,__,___ = loadModel_prophet(res["dataset"],res)
         obj["k"] = float(obj["k"])
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
@@ -391,44 +380,53 @@ def showPhoto(request):
 
 @csrf_exempt
 def showClustering(request):
+    data = json.loads(request.body.decode('utf-8'))
+    dataname = data.get("name")
+    print("--------")
+    print(dataname)
     all_data = LoadDataBase()
     sheetname = []
     data = []
-    mins_len = 9999999
     for fileName in all_data.keys():
         for sheetName in all_data[fileName]:
-            sheetname.append(fileName+"-"+sheetName)
-            data.append(all_data[fileName][sheetName]["yAxis"])
-            if len(all_data[fileName][sheetName]["yAxis"])<mins_len:
-                mins_len = len(all_data[fileName][sheetName]["yAxis"])
+            cur = fileName+"_"+sheetName
+            if cur in dataname:
+                sheetname.append(fileName+"_"+sheetName)
+                data.append(all_data[fileName][sheetName]["yAxis"])
+
 
 
     k_means(sheetname,data)
-    img_file = Image.open("demo.jpeg")
-    # 将图片保存到内存中
-    f = BytesIO()
-    img_file.save(f, 'jpeg')
-    # 从内存中取出bytes类型的图片
-    data = f.getvalue()
-    # 将bytes转成base64
-    data = base64.b64encode(data).decode()
 
-    return JsonResponse(data, safe=False)
+    return HttpResponse(None)
+
 
 @csrf_exempt
 def getSumFitting(request):
     dataset = request.GET.get("dataset", '')
-    fig = get_sum_fitting(dataset,None)
-    print(fig)
-    img_file = Image.open(fig)
+    sum_file_name, actual_file_name,list = get_sum_fitting(dataset,None)
+
+    img_file = Image.open("static/demo_actual.jpeg")
     # 将图片保存到内存中
     f = BytesIO()
     img_file.save(f, 'jpeg')
     # 从内存中取出bytes类型的图片
-    data = f.getvalue()
+    data1 = f.getvalue()
     # 将bytes转成base64
-    data = base64.b64encode(data).decode()
+    data1 = base64.b64encode(data1).decode()
 
+    img_file = Image.open("static/demo_sum.jpeg")
+    # 将图片保存到内存中
+    f = BytesIO()
+    img_file.save(f, 'jpeg')
+    # 从内存中取出bytes类型的图片
+    data2 = f.getvalue()
+    # 将bytes转成base64
+    data2 = base64.b64encode(data2).decode()
 
-    return JsonResponse(data, safe=False)
+    return JsonResponse({
+        "sum":data2,
+        "actual":data1,
+        "list":list,
+    }, safe=False)
 

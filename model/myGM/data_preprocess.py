@@ -79,7 +79,10 @@ def is_peak(data, index, peak_rate, nums, back_trend_rate = 0.15):
             return False, - 1
     before = data[index - 1][1]
     after = data[index + 1][1]
-    if (peak_num - before)/ peak_num < peak_rate and (peak_num - after)/ peak_num < peak_rate:
+    small_peak_rate = 0.0
+    small = min((peak_num - before)/ peak_num, (peak_num - after)/ peak_num)
+    big = max((peak_num - before)/ peak_num, (peak_num - after)/ peak_num)
+    if big < peak_rate or small < small_peak_rate:
         return False, -1
     for i in range(index + nums + 1, len(data)):
         if data[i][1] >= data[i - 1][1] and (data[i][1] - data[i-1][1]/data[i-1][1] >= back_trend_rate):
@@ -98,6 +101,7 @@ def get_curve_fit_input(data, end_idx):
             res.append(end)
         start_index = e + 1
     return res
+
 
 '''
 pre = preprocess(data)

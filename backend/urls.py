@@ -7,10 +7,11 @@ urlpatterns = [
     path("getAllDatasets", views.getAllDatasets),
     path("getDataset",views.getDataset),
     path("deleteData",views.deleteDataSet),
+    path("getURL",views.getURL),
 
     # 模型对比与预测
     path("getAllMetaModels", views.getAllMetaModels),
-    path("getResultOfModel", views.getResultOfModel),
+    #path("getResultOfModel", views.getResultOfModel),
     path("loadModel_multi",views.loadModel_multi),
 
     # 数据预处理

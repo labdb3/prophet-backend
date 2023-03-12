@@ -1,62 +1,45 @@
-from model.model import prophetModel, GMModel,wenshiModel
+from model.Model import prophetModel, GMModel,wenshiModel
 from model import myGM as data_preprocess
 import os
 import pandas as pd
 from prophet import Prophet
 import model.myGM.data_preprocess as data_preprocess
-from .util import *
-import pickle
-import json
 from common.common import *
 import model.sum.sum_partition as sum_partition
-from model.sum.sum_partition import res_list, cur_list
+import model.myGM.util as util
+import model.myGM.xlsx_reader as xlsx_reader
+from data.preprocess_util import preprocess
 
-
-# 默认参数的模型
-def getResultOfDataset_prophet(dataset):
-    data = GetData(dataset)
-    model = prophetModel()
-    model.fit(data[0], data[1])
-    predict = model.predict(data[0][0], len(data[0]), 0)
-    return predict.to_numpy().tolist()
-
-
-def getResultOfDataset_wensi(dataset):
-    data = GetData(dataset)
-    model = wenshiModel()
-    tmp_x = list(range(1, len(data[0]) + 1))
-    tmp_y = data[1]
-    model.fit(tmp_x,tmp_y)
-    pred_y = model.predict(len(data[0]))
-    return pred_y
-
-
-def getResultOfDataset_GM(dataset):
-    x = GMModel()
-    fileName, sheetName = getFileName(dataset)
-    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
-    predict_data, predict_res, message = x.predict(data, 5)
-    if message:
-       return [item[1] for item in predict_res],None
-    else:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
 
 
 # 自定义参数的模型
+
+def loadModel_prophet(dataset,params):
+    data = GetData(dataset)
+
+    # print("params",params)
+    if params["k"]==0 or params["k"]==None:
+        model = prophetModel(n_changepoints=params["n_changepoints"],changepoint_prior_scale=params["changepoint_prior_scale"],seasonality_prior_scale=params["seasonality_prior_scale"],refind=False)
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
+    else:
+        model = prophetModel(k=params["k"])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
+    predict = model.predict(data[0][0], len(data[0]), params["years"])
+    return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
+
 
 def getResultWithParams_prophet(dataset,params):
     data = GetData(dataset)
 
     # print("params",params)
     if params["k"]==0 or params["k"]==None:
-        model = prophetModel(params["n_changepoints"],params["changepoint_prior_scale"],params["seasonality_prior_scale"],"log")
-        k = model.fit(data[0], data[1])
+        model = prophetModel()
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0], preprocess(data[1]))
     else:
-        model = prophetModel(params["n_changepoints"], params["changepoint_prior_scale"],
-                             params["seasonality_prior_scale"], "log",k=params["k"])
-        k = model.fit(data[0],data[1])
+        model = prophetModel(k=params["k"])
+        k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale = model.fit(data[0],preprocess(data[1]))
     predict = model.predict(data[0][0], len(data[0]), params["years"])
-    return predict.to_numpy().tolist(),k
+    return predict.to_numpy().tolist(),k,n_changepoints,changepoint_prior_scale,seasonality_prior_scale
 
 
 def getResultWithParams_wensi(dataset,params):
@@ -75,6 +58,7 @@ def getResultWithParams_wensi(dataset,params):
     pred_y = model.predict(params["years"]+len(data[0]))
     return pred_y,model.a,model.b,model.c
 
+
 ## origin_data: 文件名
 ## cur_fit_input: 峰值划定结果
 '''
@@ -87,14 +71,28 @@ def getResultWithParams_GM(origin_data,params):
     x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
     fileName, sheetName = getFileName(origin_data)
     data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+    '''
+    if message:
+        return [item[1] for item in predict_res], None
+    else:
+        return [],"当前所选参数无法拟合或者当前数据集不适合灰度模型"
+    predict_data, predict_res, message = x.predict(data, params["years"])
+
+    if message:
+        return [item[1] for item in predict_res], None
+    else:
+        return [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+    '''
+
     try:
         predict_data, predict_res, message = x.predict(data, params["years"])
         if message:
            return [item[1] for item in predict_res], None
         else:
-            return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+            return [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
     except:
-        return [], "所选参数在计算时矩阵计算时会出现奇异矩阵，请重新选定参数"
+        return [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+
 
 ## 得到数据预处理的结果，方便前端进行数据分段
 ## 返回值：一个数组，按照年份排列，每个元素是[年份,产量]
@@ -112,9 +110,42 @@ def get_preprocess_res(dataset):
     return data
 
 
+def get_fit_params(dataset, params):
+    fileName, sheetName = getFileName(dataset)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+    Tm_l, Nm_l, b_l, data_l, message = util.get_fit_params(data, nums= params['nums'], peak_rate=params['peak_rate'])
+    if not message:
+        return [], [], [], "当前所填参数无法进行分段拟合"
+    return Tm_l, Nm_l, b_l, None
+
+
+def get_manual_predicting(dataset, Tm, Nm, b, params, N_w = None, b_w = None):
+    fileName, sheetName = getFileName(dataset)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+    origin_data, res = util.get_manual_predicting(origin_data=data, Nm = Nm, Tm = Tm, b = b, params= params,N_w = N_w, b_w = b_w)
+    return origin_data, res
+
+
+
+def get_fit_GM(origin_data, params):
+    x = GMModel(nums=params['nums'], peak_rate=params['peak_rate'], option = params['option'])
+    fileName, sheetName = getFileName(origin_data)
+    data = GetDataFrame_dataset(fileName, sheetName, "ds", "y")
+
+
+    try:
+        origin_data, res, Nm_l, tm_l, b_l, cut_dict, message = x.fit(data)
+        if not message:
+            return [], [],[], [], [], [], "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+        else:
+            return origin_data, res, Nm_l, tm_l, b_l, cut_dict, None
+
+    except:
+        return [], [],[], [], [], [],  "当前所选参数无法拟合或者当前数据集不适合灰度模型"
+
+
 def get_sum_fitting(dataset, params):
     '''
-
     :param dataset: 数据集名称
     :param params: 参数列表
           partition_num: 对于累积曲线划分的段数，建议选择3-4
@@ -126,7 +157,7 @@ def get_sum_fitting(dataset, params):
             jpg_name: 图片文件名称
     '''
     params = {
-        "partition_num":3,
+        "partition_num": 6,
         "degree":3,
     }
     cur_list = []
@@ -136,8 +167,20 @@ def get_sum_fitting(dataset, params):
     pre = data_preprocess.preprocess(data)
     sum = sum_partition.get_sum(pre)
     partition = sum_partition.get_partition(input_sum=sum, partition_num=params['partition_num'])
-    x_list, y_list, fitting_y_list = sum_partition.partition_fitting(partition, deg=params['degree'])
-    jpg_name = sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
-    return jpg_name
+    x_list, y_list, fitting_y_list, args_list = sum_partition.partition_fitting(partition, deg=params['degree'])
+    poly_list = []
+    for args in args_list:
+        if len(args) > 1:
+           poly = sum_partition.f(args, len(args) - 1)
+           poly_list.append(poly)
+    sum_file_name, actual_file_name= sum_partition.save_plot(dataset, x_list, y_list, fitting_y_list)
+    return sum_file_name, actual_file_name, poly_list
+
+
+params = {'nums':1, 'peak_rate':0.4, 'option': 1}
+Tm, Nm, b, message = get_fit_params("三个样本.xlsx_样本1", params)
+origin_data, res = get_manual_predicting("三个样本.xlsx_样本1", Tm, Nm, b,params)
+xlsx_reader.draw_pred(res)
+xlsx_reader.draw_pred(origin_data)
 
 

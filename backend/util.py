@@ -1,5 +1,5 @@
 import pymongo
-from model.pred import getResultOfDataset_wensi,getResultOfDataset_GM,getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,getResultOfDataset_prophet
+from model.pred import getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,loadModel_prophet,get_fit_GM
 from common.common import *
 
 
@@ -92,7 +92,7 @@ def loadModel_mutli_sub(name,model,years):
     res["years"] = years
     print("res:",res)
     if model == "prophet":
-        obj["model_prophet"], _ = getResultWithParams_prophet(res["dataset"], res)
+        obj["model_prophet"], _,__,___,____ = loadModel_prophet(res["dataset"], res)
         obj["model_prophet_dataset_xAxis"] = data[0]
         obj["model_prophet_dataset_yAxis"] = data[1]
         obj["model_prophet_dataset_name"] = res["dataset"]
