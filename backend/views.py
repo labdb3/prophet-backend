@@ -192,14 +192,11 @@ def getResultWithParams(request):
         elif model=="灰度预测":
             obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
             _, obj["fit"], obj["Nm_l"], obj["tm_l"], obj["b_l"], obj["color"], _ = get_fit_GM(dataset,params)
-            print(obj["灰度预测"])
-            print(obj["dataset_yAxis"])
             if msg != None:
                 obj["msg"] = msg
             else:
                 obj["loss"] = get_loss(obj["dataset_yAxis"], obj["灰度预测"])
 
-        print("obj",obj)
         return JsonResponse(
             obj,safe=False
         )
@@ -259,6 +256,7 @@ def getModelList(request):
     dataset = request.GET.get("dataset",'')
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["lab3"]
+    print(model,dataset)
     if model=="prophet":
         mycol = mydb["prophet"]
     elif model=="翁氏模型":
@@ -267,10 +265,14 @@ def getModelList(request):
         mycol = mydb["灰度预测"]
 
     res = []
-    for x in mycol.find():
-        if x["dataset"]!= dataset:
-            continue
-        res.append(x["name"])
+    if dataset=="":
+        for x in mycol.find():
+            res.append(x["name"])
+    else:
+        for x in mycol.find():
+            if x["dataset"]!= dataset:
+                continue
+            res.append(x["name"])
     
     resp = [{"value":item,"label":item} for item in res]
     return JsonResponse(resp,safe=False)
