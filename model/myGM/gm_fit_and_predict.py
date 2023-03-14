@@ -7,16 +7,16 @@ import model.sum.sum_partition as sum_partition
 import pandas as pd
 
 
-def predict(origin_data, nums, peak_rate, years, cut_idx = []):
-    '''
-    @description: 根据所选参数利用灰度模型对产量进行预测
-    :param origin_data:
-    :param nums:
-    :param peak_rate:
-    :param years:
-    :param cut_idx:
+def predict(origin_data, nums, peak_rate, years, cut_idx=[]):
+    """
+    description: 根据所选参数利用灰度模型对产量进行拟合和预测
+    :param origin_data: 原始年份和产量数据的二维列表，形状为[年份数*2]，第二维度为每个点的年份和产量
+    :param nums: 自动划分旋回区间的参数 峰点左右点的数目 取左边与右边点数目的较小值
+    :param peak_rate: 自动划分旋回区间的参数 峰点相对于左右相邻点的增长率
+    :param years:预测年数
+    :param cut_idx: 这里预留了一个手动划分旋回区间的接口 也给出了底层实现  但实际项目中并没有采用 后续如果你需要 可以给出实现^-^
     :return:
-    '''
+    """
     origin_data, cur_fit_input, origin_model_input, message = get_model_input_auto(origin_data, nums, peak_rate)
     if not message:
         return[],[],False
@@ -34,8 +34,7 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
         k = len(cur_fit_input[i])
         interval_end = int(cur_fit_input[i][k-1][0])
         for j in range(interval_start, interval_end+1):
-            temp = []
-            temp.append(j)
+            temp = [j]
             fit_res = 2*N_pred/(1+np.cosh(b_pred*(origin_data[j-start][0] - T_pred)))
             temp.append(fit_res)
             res.append(temp)
@@ -44,7 +43,7 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
         last_Tm = Tm_res[len(Tm_res) - 1]
         last_Nm = Nm_res[len(Nm_res) - 1]
         last_b = b_res[len(b_res) - 1]
-        last =(int)(actual_last_year + (last_Tm - actual_last_year) *2)
+        last =(int)(actual_last_year + (last_Tm - actual_last_year) * 2)
         for i in range(actual_last_year + 1, min(last + 1, pred_last_year + 1)):
             temp = []
             temp.append(i)
@@ -62,7 +61,9 @@ def predict(origin_data, nums, peak_rate, years, cut_idx = []):
     return origin_data, res, True
 
 
+"""
 def get_fit_params(origin_data, nums, peak_rate):
+
     origin_data, cur_fit_input, origin_input, message = get_model_input_auto(origin_data, nums, peak_rate)
     if not message:
         return [], [], [], [], False
@@ -85,9 +86,10 @@ def get_fit_params(origin_data, nums, peak_rate):
             temp.append(fit_res)
             res.append(temp)
     return Tm, Nm, b, res, True
+"""
 
-
-def get_manual_predicting(origin_data, Tm, Nm, b, params, N_w = None, b_w = None):
+"""
+def get_manual_predicting(origin_data, Tm, Nm, b, params, N_w=None, b_w=None):
     origin_data, cur_fit_input, origin_input, message = get_model_input_auto(origin_data, params['nums'], params['peak_rate'])
     if not message:
         return [], [], [], [], False
@@ -137,9 +139,18 @@ def get_manual_predicting(origin_data, Tm, Nm, b, params, N_w = None, b_w = None
         production = 2* predict_Nm /(1 + np.cosh(predict_b*(i + end_year - predict_Tm)))
         res.append([year, production])
     return origin_data, res
+"""
 
 
 def fit(origin_data, nums, peak_rate, cut_idx = []):
+    """
+    :description: 利用灰度模型和所选参数对产量进行拟合，返回拟合得到的Nm Tm b和经过计算得到的产量，同时返回拟合时的分段情况，供前端进行展示
+    :param origin_data:原始产量列表
+    :param nums: 自动划分旋回区间的参数 峰点左右点的数目 取左边与右边点数目的较小值
+    :param peak_rate: 自动划分旋回区间的参数 峰点相对于左右相邻点的增长率
+    :param cut_idx: 这里预留了一个手动划分旋回区间的接口 实际项目中并没有采用 后续如果你需要 可以给出实现^-^
+    :return: 拟合产生的Hubbert模型Nm, bm, t参数列表 以及通过它们计算得到的产量 曲线的分段情况
+    """
     origin_data, cur_fit_input, origin_input, message = get_model_input_auto(origin_data, nums, peak_rate)
     if not message:
         return [], [], [], [], [], False
@@ -155,7 +166,10 @@ def fit(origin_data, nums, peak_rate, cut_idx = []):
         interval_start = int(cur_fit_input[i][0][0])
         k = len(cur_fit_input[i])
         interval_end = int(cur_fit_input[i][k-1][0])
-        if i%2 == 0:
+        '''
+          这里向前端返回一个字典列表，字典的每个元素为：该分段开始年份-1-产量数据起始年份,该分段结束年份-产量数据起始年份，用于区分分段的颜色信息
+        '''
+        if i % 2 == 0:
             curr_dict = dict(gt=interval_start-start-1, lte=interval_end-start, color ='blue')
         else:
             curr_dict = dict(gt=interval_start - start - 1, lte=interval_end - start, color='red')
@@ -186,11 +200,15 @@ def get_origin_data(data):
         data_after_preprocess.append(l)
     return data_after_preprocess
 
-'''
-  @:description: 在给定参数的支持下自动给出产量的旋回划分
-  @：params
-'''
+
 def get_model_input_auto(data, nums, peak_rate):
+    """
+    description:使用划分算法对产量曲线进行分段
+    :param data:原始产量列表
+    :param nums: 自动划分旋回区间的参数 峰点左右点的数目 取左边与右边点数目的较小值
+    :param peak_rate: 自动划分旋回区间的参数 峰点相对于左右相邻点的增长率
+    :return:经过预处理的产量数据;分段后的产量数据;每段产量数据利用curve_fit得到的Nm, b和Tm
+    """
     data = data_imputation.preprocess(data)
     data_after_preprocess = []
     for i in range(0, len(data['y'].values)):
@@ -207,7 +225,9 @@ def get_model_input_auto(data, nums, peak_rate):
     min_partition = sum_partition.get_partition(sum, 5)
     res = sum_partition.get_GM_input(min_partition)
     '''
-
+    """
+       如果划分结果只有一段，那么无法进行后续的拟合和预测操作
+    """
     if len(res) < 2:
         return [],[],[],False
     par = GM_implementation.cur_fit(res)
@@ -217,6 +237,12 @@ def get_model_input_auto(data, nums, peak_rate):
 
 
 def get_gm_model_inputs_manually(data, cut_idx):
+    """
+    description: 利用人工给出的标定信息给出产量划分
+    :param data:
+    :param cut_idx:
+    :return:
+    """
     data = data_imputation.preprocess(data)
     data_after_preprocess = []
     for i in range(0, len(data['y'].values)):

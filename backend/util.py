@@ -1,5 +1,5 @@
 import pymongo
-from model.pred import getResultWithParams_wensi,getResultWithParams_GM,getResultWithParams_prophet,loadModel_prophet,get_fit_GM
+from model.pred import getResultWithParams_wensi,get_predicting_results_with_params_gm,getResultWithParams_prophet,loadModel_prophet,get_fit_GM
 from common.common import *
 
 
@@ -102,7 +102,7 @@ def loadModel_mutli_sub(name,model,years):
         obj["model_翁氏模型_dataset_yAxis"] = data[1]
         obj["model_翁氏模型_dataset_name"] = res["dataset"]
     elif model == "灰度预测":
-        obj["model_灰度预测"], _ = getResultWithParams_GM(res["dataset"], res)
+        obj["model_灰度预测"], _ = get_predicting_results_with_params_gm(res["dataset"], res)
         obj["model_灰度预测_dataset_xAxis"] = data[0]
         obj["model_灰度预测_dataset_yAxis"] = data[1]
         obj["model_灰度预测_dataset_name"] = res["dataset"]

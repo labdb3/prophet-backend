@@ -15,13 +15,18 @@ import pandas as pd
     }
 """
 URL = "http://127.0.0.1:8000/"
+'''
+   请在这里修改数据存放绝对路径^-^
+'''
 #DATABASE_PATH = "/Users/zongdianliu/python/prophet-backend/data"
-# DATABASE_PATH = "D:\dblab3\prophet-backend\data"
-DATABASE_PATH = "/root/prophet-backend/data"
+DATABASE_PATH = "D:\dblab3\prophet-backend\data"
+#DATABASE_PATH = "/root/prophet-backend/data"
+
+
 def getFileName(query):
     fileName = query.split("_")[0]
     sheetName = "_".join(query.split("_")[1:])
-    return fileName,sheetName
+    return fileName, sheetName
 
 
 def LoadDataBase():

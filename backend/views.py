@@ -190,7 +190,7 @@ def getResultWithParams(request):
             obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(dataset,params)
             obj["loss"] = get_loss(obj["dataset_yAxis"], obj["翁氏模型"])
         elif model=="灰度预测":
-            obj["灰度预测"],msg = getResultWithParams_GM(dataset,params)
+            obj["灰度预测"],msg = get_predicting_results_with_params_gm(dataset, params)
             _, obj["fit"], obj["Nm_l"], obj["tm_l"], obj["b_l"], obj["color"], _ = get_fit_GM(dataset,params)
             if msg != None:
                 obj["msg"] = msg
@@ -348,7 +348,7 @@ def loadModel(request):
     elif model=="翁氏模型":
         obj["翁氏模型"],obj["a"],obj["b"],obj["c"] = getResultWithParams_wensi(res["dataset"],res)
     elif model=="灰度预测":
-        obj["灰度预测"],msg = getResultWithParams_GM(res["dataset"],res)
+        obj["灰度预测"],msg = get_predicting_results_with_params_gm(res["dataset"], res)
         if msg!=None:
             obj["msg"] = msg
 

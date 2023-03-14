@@ -10,16 +10,21 @@ import matplotlib.pyplot as plt
 '''
    解决中文乱码问题
 '''
-plt.rcParams['font.sans-serif']= ['Songti SC']
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+##plt.rcParams['font.sans-serif']= ['Songti SC']
 matplotlib.use('Agg')
-font_list = sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
+##font_list = sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
 
 
-'''
- @:description k_means聚类算法，用于对产量曲线进行聚类
- 
-'''
+
 def k_means(sheet_name:list, data:list):
+    """
+     @:description k_means聚类算法，用于对产量曲线进行聚类
+
+    """
+
     X = to_time_series_dataset(data)
     # 数据标准化
     X = TimeSeriesScalerMeanVariance(mu=0.0, std=1.0).fit_transform(X)

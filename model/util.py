@@ -1,10 +1,6 @@
 import numpy as np
 
 
-##BASE_DIR = '/Users/zongdianliu/python/prophet-backend/data/datasets'
-
-
-
 def log(data):
     data = np.log1p(data)
     return data

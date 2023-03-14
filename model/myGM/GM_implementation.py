@@ -4,17 +4,22 @@ import matplotlib.pyplot as plt
 
 
 def first_order_GM(actual):
+    """
+    :@description: 采用GM(1,N)模型对Hubbbert模型涉及到的参数(Nm, Tm, b)进行拟合和预测
+    :param actual:灰度模型的输入，是一个一位numpy数组 长度为[N*1]
+    :return: 拟合结果和预测结果  长度为(N+1) * 1
+    """
     sum_act = actual.cumsum(axis=0)
     Z = np.array(([-0.5 * (sum_act[k - 1] + sum_act[k]) for k in range(1, len(sum_act))])).reshape(len(sum_act) - 1, 1)
     one = np.ones((len(actual) - 1, 1))
-    B = np.hstack((Z,one))
+    B = np.hstack((Z, one))
     Y = (actual[1:].reshape(len(Z), 1))
     u = np.linalg.inv(np.matmul(B.T, B)).dot(B.T).dot(Y)
     a = u[0][0]
     b = u[1][0]
     sum_res = np.zeros(len(actual)+1)
     for i in range(0, len(sum_res)):
-        sum_res[i] = (actual[0] - b/a) *np.exp(-a*i) + b/a
+        sum_res[i] = (actual[0] - b/a) * np.exp(-a*i) + b/a
     actual_res = np.zeros(len(actual)+1)
     actual_res[0] = sum_res[0]
     for i in range(1, len(actual_res)):
@@ -24,7 +29,7 @@ def first_order_GM(actual):
 
 def GM_predict(actual, relevant, type= 'Nm'):
     '''
-    @:description:
+    @:description: 高阶GM模型，项目中由于效果差没有采用. 不过可以用来用作对比分析材料^-^ 后续有需要我再进行完善
     :param actual:
     :param relevant:
     :param type:
@@ -44,8 +49,7 @@ def GM_predict(actual, relevant, type= 'Nm'):
     sum_res = np.zeros(k+1)
     for i in range(1,k+1):
         sum_res[i] = (actual[0]-(b2*X[i][0] + b3*X[i][1])/b1)*np.exp(-b1*(i)) + (b2*X[i][0] + b3*X[i][1])/b1
-    pred_res = []
-    pred_res.append(actual[0])
+    pred_res = [actual[0]]
     for i in range(0, k):
         if i == 0:
             pred = sum_res[i] - pred_res[0]
@@ -55,7 +59,6 @@ def GM_predict(actual, relevant, type= 'Nm'):
             pred = max(pred, 0)
         pred_res.append(pred)
     return pred_res
-
 
 
 

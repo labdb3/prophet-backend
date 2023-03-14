@@ -1,12 +1,10 @@
 import pandas as pd
 
-import model.myGM.util as util
-import numpy as np
-from prophet import Prophet
-from .util import *
+import model.myGM.gm_fit_and_predict as gm
 from prophet import Prophet
 from scipy.optimize import curve_fit
 
+from model.util import *
 
 
 class MetaModel:
@@ -186,10 +184,10 @@ class GMModel(MetaModel):
         self.cut_idx = cut_idx
 
     def fit(self, origin_data):
-        return util.fit(origin_data, nums=self.nums, peak_rate=self.peak_rate, cut_idx= self.cut_idx)
+        return gm.fit(origin_data, nums=self.nums, peak_rate=self.peak_rate, cut_idx= self.cut_idx)
 
     def predict(self, origin_data, years):
-        return util.predict(origin_data, nums=self.nums, peak_rate=self.peak_rate, years=years, cut_idx= self.cut_idx)
+        return gm.predict(origin_data, nums=self.nums, peak_rate=self.peak_rate, years=years, cut_idx= self.cut_idx)
 
 
 class wenshiModel(MetaModel):
